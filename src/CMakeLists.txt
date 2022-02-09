@@ -9,7 +9,7 @@ add_executable(producer producer.cpp)
 
 
 target_link_libraries(
-    writer rtos_parser
+    writer rtos_data
 )
 
 target_link_libraries(
@@ -24,7 +24,7 @@ target_link_libraries(
 )
 
 target_link_libraries(
-    reader rtos_parser
+    reader rtos_data
 )
 
 target_link_libraries(

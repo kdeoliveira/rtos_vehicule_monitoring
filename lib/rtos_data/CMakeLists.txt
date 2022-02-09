@@ -1,5 +1,5 @@
 
-project(rtos_parser)
+project(rtos_data)
 
 include_directories(
     ./include
@@ -14,5 +14,5 @@ target_include_directories(
 )
 
 target_link_libraries(
-    rtos_parser INTERFACE rtos_common
+    ${PROJECT_NAME} INTERFACE rtos_common
 )

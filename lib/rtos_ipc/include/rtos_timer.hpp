@@ -24,9 +24,6 @@ namespace rtos{
             return *this;
         }
 
-        
-
-
     };
     class Timer{
         public:
@@ -76,6 +73,7 @@ namespace rtos{
 
 
                     sigwaitinfo(&set, &info);
+
 
                     // if( sigqueue(_pid, this->m_sigevent->sigev_signo, val) < 0 ){
                     //     perror("sigqueue");
