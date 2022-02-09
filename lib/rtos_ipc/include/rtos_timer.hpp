@@ -1,4 +1,4 @@
-
+#pragma once
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
@@ -21,6 +21,19 @@ namespace rtos{
 
         timer_cycle operator++(int){
             (*this).cycles = ++(*this).cycles % (*this).hyperperiod;
+            return *this;
+        }
+
+        timer_cycle& operator--(){
+            if ((*this).cycles == 0 ) return *this;
+            (*this).cycles = --(*this).cycles % (*this).hyperperiod;
+            return *this;
+        }
+
+
+        timer_cycle operator--(int){
+            if ((*this).cycles == 0 ) return *this;
+            (*this).cycles = --(*this).cycles % (*this).hyperperiod;
             return *this;
         }
 

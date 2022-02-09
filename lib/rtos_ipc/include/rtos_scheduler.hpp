@@ -1,6 +1,10 @@
+#pragma once
 #include <queue>
 #include <signal.h>
 #include <memory>
+#include <rtos_timer.hpp>
+
+
 
 namespace rtos{
 
@@ -19,34 +23,43 @@ namespace rtos{
             }
 
             ~Scheduler(){
-                
+                delete this->m_queue;
             }
 
             void push(period_task arg){
-                if(this->m_index == this->m_sz - 1){
+                if(this->m_cycles.cycles == this->m_sz - 1){
                     return;
                 }
-
-                this->m_queue[m_index++] = arg;
+                m_cycles++;
+                this->m_queue[m_cycles.cycles] = arg;
             }
 
-            void pop(){
-                if(this->m_index == 0)  return;
-                this->m_index--;
+            period_task pop(){
+                if(this->m_cycles == 0)  return;
+                period_task task = this->m_queue[this->m_cycles.cycles];
+                this->m_cycles++;
+                return task;
             }
 
 
 
             int on_kill(){
-                if(this->m_index == 0) return -1;
 
-                period_task next = this->m_queue[this->m_index++];
+                siginfo_t info;
+                sigset_t set;
+                sigemptyset(&set);
+                sigaddset(&set, this->m_signum);
+                sigprocmask(SIG_BLOCK, &set,nullptr);
+                
+                while(true){
+                    if(this->m_cycles < 0) return -1;
+                    period_task next = this->pop();
 
-                int status = pthread_kill(next.thread_id, this->m_signum);
-
-                if(status == -1) throw "Error notifying thread";
-
-
+                    sigwaitinfo(&set, &info);
+                    
+                    int status = pthread_kill(next.thread_id, this->m_signum);
+                    if(status == -1) throw "Error notifying thread";
+                }
             }
 
 
@@ -55,7 +68,7 @@ namespace rtos{
             //Implement thread safe queue
             period_task* m_queue;
             const int m_sz;
-            int m_index;
+            timer_cycle m_cycles;
             int m_signum;
             std::unique_ptr<pid_t> m_pid_id;
 

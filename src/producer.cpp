@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <rtos_task.hpp>
 #include <rtos_timer.hpp>
-
 class FuelConsumption : public rtos::Task<char *>{
     public:
         char* run() override{
