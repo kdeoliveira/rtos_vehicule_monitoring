@@ -27,6 +27,10 @@ $RECYCLE.BIN/
 ##### Linux
 *~
 
+#VSCODE
+# .vscode
+# launch.json
+
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -1038,3 +1042,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.vscode/launch.json
+
