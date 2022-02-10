@@ -22,9 +22,7 @@ target_link_libraries(
 )
 
 target_link_libraries(
-    rtos_ipc INTERFACE rt
+    ${PROJECT_NAME} INTERFACE rt
 )
-
-
 
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)

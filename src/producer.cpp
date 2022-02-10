@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <rtos_task.hpp>
 #include <rtos_timer.hpp>
+
 class FuelConsumption : public rtos::Task<char *>{
     public:
         char* run() override{
@@ -26,6 +27,8 @@ class MainThread : public rtos::Thread<char*>{
     private:
         int m_id;
 };
+
+
 
 
 int main(int argc, char *argv[])
@@ -82,6 +85,9 @@ int main(int argc, char *argv[])
     // }
 
     m_timer.notify(0, SIGUSR1, nullptr);
+
+
+
 
 
     return EXIT_SUCCESS;

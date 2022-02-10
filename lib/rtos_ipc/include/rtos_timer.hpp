@@ -1,4 +1,5 @@
 #pragma once
+#include "rtos_ipc.hpp"
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
@@ -74,15 +75,12 @@ namespace rtos{
 
             void notify(pid_t _pid, int _sig, void* _args){
                 siginfo_t info;
-                sigset_t set;
-                sigemptyset(&set);
-                sigaddset(&set, this->m_sigevent->sigev_signo);
-                sigprocmask(SIG_BLOCK, &set,nullptr);
+                sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
                 
                 
                 while(true){
-                    sigval val;
-                    val.sival_ptr = _args;
+                    // sigval val;
+                    // val.sival_ptr = _args;
 
 
                     sigwaitinfo(&set, &info);
