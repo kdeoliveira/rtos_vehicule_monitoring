@@ -75,7 +75,9 @@ namespace rtos{
 
             void notify(pid_t _pid, int _sig, void* _args){
                 siginfo_t info;
-                sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
+                // sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
+                sigset_t set;
+                sigaddset(&set, this->m_sigevent->sigev_signo);
                 
                 
                 while(true){

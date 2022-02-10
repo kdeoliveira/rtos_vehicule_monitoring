@@ -53,11 +53,14 @@ public:
 int main(int argc, char *argv[])
 {
 
-    // siginfo_t info;
-    // sigset_t set;
-    // sigemptyset(&set);
-    // sigaddset(&set, SIGUSR1);
-    // sigprocmask(SIG_BLOCK, &set, nullptr);
+    siginfo_t info;
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR1);
+    sigprocmask(SIG_BLOCK, &set, nullptr);
+
+
+    // rtos::util::mask_signal(SIGUSR1);
 
     pid_t pid = fork();
 
@@ -74,7 +77,10 @@ int main(int argc, char *argv[])
 
         m_timer.onNotify([&](void *val)
                          {
-            kill(getppid(), SIGUSR1);
+            sigval_t value;
+            value.sival_int = 10;
+            // kill(getppid(), SIGUSR1);
+            sigqueue(getppid(), SIGUSR1, value);
             puts("HERE"); });
 
         m_timer.notify(0, SIGUSR1, nullptr);

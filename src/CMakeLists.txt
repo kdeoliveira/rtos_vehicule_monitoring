@@ -34,7 +34,7 @@ target_link_libraries(
 )
 
 target_link_libraries(
-    producer rtos_ipc
+    producer rtos_data
 )
 
 target_link_libraries(

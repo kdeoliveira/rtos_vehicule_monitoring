@@ -1,22 +1,78 @@
 #include <cstdlib>
 #include <rtos_task.hpp>
 #include <rtos_timer.hpp>
+#include <rtos_packet.hpp>
+#include "common.hpp"
+#include <stack>
+#include <mutex>
+#include <condition_variable>
+
+
+std::condition_variable m_cd;
+bool ready = true;
 
 class FuelConsumption : public rtos::Task<char *>{
     public:
-        char* run() override{
+        FuelConsumption(std::stack<char *> x) : rtos::Task<char *>{x}{}
+        void run() override{
             int i = 0;
 
-            while(i < 20){
-                printf("Current index: %d\n", i);
-                i++;
+            while(true){
+
+                std::unique_lock<std::mutex> ul(this->m_mx);
+
+                m_cd.wait(ul, [&]{
+                    return !this->m_input_stack.empty();
+                });
+
+                
+                std::cout << this->m_input_stack.top() << std::endl;
+                this->m_input_stack.pop();
+                ready = true;
+                m_cd.notify_one();
             }
-            return nullptr;
+            
         }
 
         ~FuelConsumption(){
-
+            // delete m_packet_data;
+            // delete m_packet_header;
         }
+
+    private:
+        std::mutex m_mx;
+
+        
+};
+
+class Producer : public rtos::Task<char *>{
+    public:
+    Producer(std::stack<char *> x) : rtos::Task<char *>{x}{}
+    void run() override{
+        int i = 0;
+        while(true){
+            std::cout << "Pushing to queue" << std::endl;
+
+            std::unique_lock<std::mutex> ul(this->m_mx);
+
+            m_cd.wait(ul, [&]{
+            return ready;
+            });
+            ready = false;
+
+            char * temp = new char[20];
+            sprintf(temp, "test: %d", i);
+
+            this->m_input_stack.push(temp);
+            i++;
+            
+            m_cd.notify_one();
+        }
+    }
+    private:
+        std::mutex m_mx;
+
+
 };
 
 class MainThread : public rtos::Thread<char*>{
@@ -28,63 +84,28 @@ class MainThread : public rtos::Thread<char*>{
         int m_id;
 };
 
-
-
-
 int main(int argc, char *argv[])
 {
 
     try{
-        FuelConsumption* fc = new FuelConsumption();
+        std::stack<char *> producer_queue;
+
+        rtos::Task<char*>* fc = new FuelConsumption(producer_queue);
+        rtos::Task<char*>* pd = new Producer(producer_queue);
+
         std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);
+        std::unique_ptr<MainThread> thread1 = std::make_unique<MainThread>(10, pd);
+
 
         thread->start();
+        thread1->start();
         thread->join();
+        thread1->join();
     }catch(const char* e){
         puts(e);
     }
 
 
-    rtos::Timer m_timer(CLOCK_REALTIME, SIGUSR1, 5);
-
-    if(m_timer.start(2,0) < 0) perror("timer_settime");
-
-    m_timer.onNotify([](void* val){
-        static int start;
-        static u_int8_t cycles = 0;
-        int current;
-	    struct timespec tv;
-        
-
-
-        if(start == 0){
-            clock_gettime(CLOCK_MONOTONIC, &tv);
-            start = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
-        }
-
-        clock_gettime(CLOCK_MONOTONIC, &tv);
-        current = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
-
-        if(cycles > 0){
-            printf("Current cycle: %u and Time spend: %f\n", cycles, (double)(current - start)/cycles);
-        }
-        
-        ++cycles;
-        
-
-        
-    });
-    // sigset_t sigst;
-    // sigemptyset(&sigst); // initialize a signal set
-	// sigaddset(&sigst, SIGUSR1); // add SIGALRM to the signal set
-	// sigprocmask(SIG_BLOCK, &sigst, NULL); //block the signal
-
-    // while(true){
-    //     sigwait(&sigst, nullptr);
-    //     puts("HERE");
-    // }
-
-    m_timer.notify(0, SIGUSR1, nullptr);
 
 
 

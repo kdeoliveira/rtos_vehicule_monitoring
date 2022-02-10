@@ -2,13 +2,16 @@
 
 #include <pthread.h>
 #include <memory>
-
+#include <stack>
 namespace rtos{
     template<typename T>
     class Task{
         public:
-            virtual T run() = 0;
+            Task(std::stack<T>& _stack) : m_input_stack{_stack}{}
+            virtual void run() = 0;
             virtual ~Task(){}
+        protected:
+            std::stack<T>& m_input_stack;
     };
 
     template<typename T>
@@ -22,6 +25,9 @@ namespace rtos{
 
             Thread(Task<T>* run, bool isDetached) : detached{isDetached}{
                 m_runnable.reset(run);
+                if(!m_runnable.get()){
+                    throw "Runnable object is null";
+                }
             }
 
             Thread(std::shared_ptr<Task<T>> run, bool isDetached, int policy, int priority) : detached{isDetached}, m_runnable{run}{
@@ -48,7 +54,6 @@ namespace rtos{
 
                 status = pthread_attr_setdetachstate(&m_thread_attr, detached ? PTHREAD_CREATE_DETACHED : PTHREAD_CREATE_JOINABLE);
                 if(status) throw "Invalid pthread_attr";
-
                 status = pthread_create(&this->m_thread_id, &this->m_thread_attr, Thread::startThread, (void*) this);
 
                 if(status){

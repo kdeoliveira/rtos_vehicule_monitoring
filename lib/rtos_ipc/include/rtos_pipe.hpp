@@ -102,19 +102,21 @@ namespace rtos
 
             if(this->flags == PipeFlag::CREATE){
                 static T buffer;
-                 while( read(fd[0], &buffer, sizeof(T) )  > 0 ){
+                //  while( read(fd[0], &buffer, sizeof(T) )  > 0 ){
+                if( read(fd[0], &buffer, sizeof(T) )  > 0 )
                     for(Callback& x : this->callbacks){
                             if(x(typeid(T))){
                                 x(buffer);
                             }
                     }
-                }
+                // }
 
             }else{
                 char line[BUFFER_SIZE];
                 setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
                 static void* p;
-                while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                // while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                if((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
                 {
                     for (Callback &x : this->callbacks)
                     {

@@ -53,7 +53,9 @@ namespace rtos{
             void dispatch(){
                 
                 siginfo_t info;
-                sigset_t set = util::mask_signal(this->m_signum);
+                // sigset_t set = util::mask_signal(this->m_signum);
+                sigset_t set;
+                sigaddset(&set, this->m_signum);
                 
                 while(true){
                     if(this->m_cycles.cycles < 0) return;
