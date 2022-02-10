@@ -117,6 +117,10 @@ namespace rtos
             return this->fd;
         }
 
+        bool is_eof(){
+            return this->file_size <= this->position;
+        }
+
 
     private:
         BYTE* line_stream;

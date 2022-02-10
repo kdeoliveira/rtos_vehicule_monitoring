@@ -50,8 +50,10 @@ namespace rtos
                 // dup2(_fd, this->fd[0]);
                 close(_fd[1]);
                 this->fd[0] = _fd[0];
-                if(_flags == PipeFlag::REDIRECT)
+                if(_flags == PipeFlag::REDIRECT){
                     this->fd_stream = fdopen(fd[0], "r");
+                    setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
+                }
             }
             else if (this->mode == PipeMode::WRITE)
             {
@@ -113,10 +115,10 @@ namespace rtos
 
             }else{
                 char line[BUFFER_SIZE];
-                setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
+                
                 static void* p;
-                // while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
-                if((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                // if((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
                 {
                     for (Callback &x : this->callbacks)
                     {
