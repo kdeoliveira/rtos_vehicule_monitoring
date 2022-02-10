@@ -11,7 +11,10 @@ namespace rtos{
             sigemptyset(&set);
 
             sigaddset(&set, _signmum);
-            sigprocmask(_signmum, &set, nullptr);
+            if(sigprocmask(SIG_BLOCK, &set, nullptr) < 0){
+                perror("sigprocmask");
+                throw "Unable to mask signal for tihs thread";
+            }
 
             return set;
         }

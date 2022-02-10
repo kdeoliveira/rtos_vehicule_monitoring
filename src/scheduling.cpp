@@ -53,14 +53,14 @@ public:
 int main(int argc, char *argv[])
 {
 
-    siginfo_t info;
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGUSR1);
-    sigprocmask(SIG_BLOCK, &set, nullptr);
+    // siginfo_t info;
+    // sigset_t set;
+    // sigemptyset(&set);
+    // sigaddset(&set, SIGUSR1);
+    // sigprocmask(SIG_BLOCK, &set, nullptr);
 
 
-    // rtos::util::mask_signal(SIGUSR1);
+    rtos::util::mask_signal(SIGUSR1);
 
     pid_t pid = fork();
 
