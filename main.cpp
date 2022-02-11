@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
         {
             perror("waitpid");
         }
+        _exit(EXIT_SUCCESS);
+
     }
 
     return EXIT_SUCCESS;
