@@ -7,7 +7,15 @@
 #include <vector>
 
 int main(int argc, char * argv[]){
-    rtos::InputFile input_file("/home/kdeoliveira/dev/rtos_vehicule_monitoring/src/dataset.csv");
+    uid_t uid = geteuid();
+    char* whoami = new char[10];
+    getlogin_r(whoami, sizeof(char*));
+    puts(whoami);
+    
+    char * filename = new char[70];
+    sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
+
+    rtos::InputFile input_file(filename);
 
     std::vector<rtos::packet_data<SensorsHeader, float>> m_input_map; 
 
@@ -39,7 +47,7 @@ int main(int argc, char * argv[]){
             *m_packet = SensorsHeader(m_arg_col);
             *m_packet << (float) atof(res);
             m_input_map.push_back(*m_packet.get());
-
+            // std::cout << *m_packet << std::endl;
         }
 
         
@@ -51,16 +59,21 @@ int main(int argc, char * argv[]){
                 *m_packet = SensorsHeader(m_arg_col);
                 *m_packet << atof(res);
                 m_input_map.push_back(*m_packet.get());
-            }            
+
+            }
         }
         stop = high_resolution_clock::now();
         auto duration = duration_cast<nanoseconds>(stop - start);
         printf("Execution time: %ld ns\n", duration.count());
+
         m_arg_row++;
     });
 
     
     pipe.read_pipe<char*>();
+    pipe.read_pipe<char*>();
+
+
 
 
 

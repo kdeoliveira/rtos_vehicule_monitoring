@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         _exit(EXIT_SUCCESS);
     }
 
-    if (pid != 0)
+    else
     {
 
         int status;
@@ -84,7 +84,6 @@ int main(int argc, char *argv[])
             perror("waitpid");
         }
         _exit(EXIT_SUCCESS);
-
     }
 
     return EXIT_SUCCESS;

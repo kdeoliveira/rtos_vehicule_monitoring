@@ -93,6 +93,8 @@ namespace rtos
             callbacks.push_back(callback);
         }
 
+        //Reads one buffer line at the time
+        // TODO: sync with its respective periodic task
         template <typename T>
         int read_pipe()
         {
@@ -117,8 +119,8 @@ namespace rtos
                 char line[BUFFER_SIZE];
                 
                 static void* p;
-                while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
-                // if((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                // while ((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
+                if((p = fgets(line, BUFFER_SIZE, this->fd_stream)) != nullptr)
                 {
                     for (Callback &x : this->callbacks)
                     {
