@@ -4,20 +4,25 @@
 #include <rtos_data.hpp>
 #include "common.hpp"
 
-#include <vector>
+#include <rtos_buffer.hpp>
+
+#include <variant>
 
 int main(int argc, char * argv[]){
     uid_t uid = geteuid();
-    char* whoami = new char[10];
-    getlogin_r(whoami, sizeof(char*));
-    puts(whoami);
+    char whoami[20];
+    getlogin_r(whoami, sizeof(char*)*20);
     
     char * filename = new char[70];
     sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
 
+    
+
     rtos::InputFile input_file(filename);
 
     std::vector<rtos::packet_data<SensorsHeader, float>> m_input_map; 
+
+    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
     if(argc != 3) exit(EXIT_FAILURE);
     int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
@@ -35,8 +40,7 @@ int main(int argc, char * argv[]){
 
 
 
-        std::unique_ptr<rtos::packet_data<SensorsHeader, float>> m_packet = std::make_unique<rtos::packet_data<SensorsHeader, float>>();
-
+        std::unique_ptr<rtos::packet_data<SensorsHeader, SensorValue>> m_packet = std::make_unique<rtos::packet_data<SensorsHeader, SensorValue>>();
 
 
         char* res;
@@ -46,8 +50,7 @@ int main(int argc, char * argv[]){
         if(m_arg_row > 0){
             *m_packet = SensorsHeader(m_arg_col);
             *m_packet << (float) atof(res);
-            m_input_map.push_back(*m_packet.get());
-            // std::cout << *m_packet << std::endl;
+            m_buffer_input.add(*m_packet, m_arg_col);
         }
 
         
@@ -57,9 +60,16 @@ int main(int argc, char * argv[]){
 
             if(m_arg_row > 0){
                 *m_packet = SensorsHeader(m_arg_col);
-                *m_packet << atof(res);
-                m_input_map.push_back(*m_packet.get());
+                if(m_arg_col == 52){
+                    *m_packet << static_cast<float>(*res);
+                    // *m_packet << static_cast<float>(*res;
+            // std::cout << "VAL: " << static_cast<char>( static_cast<float>(*res) ) << std::endl;
 
+
+                }else{
+                    *m_packet << (float) atof(res);
+                }
+                m_buffer_input.add(*m_packet, m_arg_col);
             }
         }
         stop = high_resolution_clock::now();
@@ -77,9 +87,10 @@ int main(int argc, char * argv[]){
 
 
 
-    // for(auto& x : m_input_map){
-    //     std::cout << x.first << std::endl;
-    // }
+    for(auto& x : m_buffer_input){
+        std::cout << x;
+    }
+    std::cout << std::endl;
 
 
     return EXIT_SUCCESS;

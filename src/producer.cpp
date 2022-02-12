@@ -6,7 +6,7 @@
 #include <stack>
 #include <mutex>
 #include <condition_variable>
-
+#include <rtos_buffer.hpp>
 
 std::condition_variable m_cd;
 bool ready = true;
@@ -96,11 +96,27 @@ int main(int argc, char *argv[])
         std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);
         std::unique_ptr<MainThread> thread1 = std::make_unique<MainThread>(10, pd);
 
+        rtos::buffer<char *> buff(2);
 
-        thread->start();
-        thread1->start();
-        thread->join();
-        thread1->join();
+        buff[0] = "Kevin";
+        buff[1] = "De Oliveira";
+
+        std::cout << buff[0] << std::endl;
+
+        buff.pop(0);
+        
+
+        for(auto& x : buff){
+            if(x != nullptr)
+                puts(x);
+        }
+
+
+
+        // thread->start();
+        // thread1->start();
+        // thread->join();
+        // thread1->join();
     }catch(const char* e){
         puts(e);
     }

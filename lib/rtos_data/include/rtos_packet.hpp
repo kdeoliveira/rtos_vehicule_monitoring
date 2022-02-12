@@ -6,6 +6,8 @@
 #include <cstring>
 #include <type_traits>
 
+#include <variant>
+
 namespace rtos{
     template<typename T>
     struct packet_header{
@@ -41,7 +43,17 @@ namespace rtos{
         }
 
         friend std::ostream& operator << (std::ostream& os, const packet_data<T, R>& data){
-            os << "id: " << data.header.id << " | " << "payload: " << data.payload;
+            // if(std::is_union<std::remove_const<decltype(data.payload)>>::value){
+                
+            //     return os;
+            //     // os << "id: " << data.header.id << " | " << "payload: " << static_cast<typeid(arg)>(data.payload);
+            // }else{
+
+            //     os << "id: " << data.header.id << " | " << "payload: " << data.payload;
+            // }
+
+                os << "{ " << data.header.id << ":" <<  data.payload <<" }";
+
             return os;
         }
 
