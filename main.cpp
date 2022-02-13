@@ -8,9 +8,14 @@
 #include <string>
 #include <iostream>
 #include <fcntl.h>
+#include <rtos_ipc.hpp>
 
 int main(int argc, char *argv[])
 {
+    rtos::util::mask_signal(SIGUSR1);
+    rtos::util::mask_signal(SIGUSR2);
+
+
     int fd[2];
 
     pid_t pid = fork();
@@ -42,19 +47,22 @@ int main(int argc, char *argv[])
             {
                 perror("execl");
             }
+        _exit(EXIT_SUCCESS);
+
         }else{
             const char *arg_pid = std::to_string(getpid()).c_str();
         
             std::string path = get_current_dir_name();
-            path += "/src/reader";
+            path += "/src/scheduling";
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
                 perror("execl");
             }
+        _exit(EXIT_SUCCESS);
+
         }
 
-        
 
         _exit(EXIT_SUCCESS);
     }

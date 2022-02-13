@@ -43,19 +43,21 @@ namespace rtos{
         public:
             Timer(const Timer&) = delete;
             Timer() = delete;
-            Timer(clockid_t clock_type, int signum, u_int8_t _hyperperiod = 1){
+            Timer(clockid_t clock_type, int signum){
+                
                 this->callback = nullptr;
 
                 // if(signum > SIGRTMAX || signum < SIGRTMIN) throw "Signal is out of range";
-
-                m_timer_cycle = new timer_cycle(_hyperperiod);
+                m_sigevent = new sigevent_t;
                 
                 this->m_sigevent->sigev_notify = SIGEV_THREAD_ID;
                 this->m_sigevent->sigev_signo = signum;
                 //sigev_notify_thread_id
                 this->m_sigevent->_sigev_un._tid = gettid();
+
                 
                 this->m_timer_id = timer_create(clock_type, this->m_sigevent, &this->m_timer);
+
 
                 if(m_timer_id < 0) throw "Unable to create timer";
             }
@@ -92,11 +94,9 @@ namespace rtos{
                     //     perror("sigqueue");
                     //     throw "Error when sending SIGNAL";
                     // }
-                    ++(*m_timer_cycle);
 
                     
                     if(this->callback != nullptr){
-                        printf("Timer Cycle: %u\n", m_timer_cycle->cycles);
                         (*this->callback)(_args);
                         
                     }
@@ -129,7 +129,6 @@ namespace rtos{
             Callback* callback;
             // u_int8_t m_hyperperiod;
             // u_int8_t m_cycles;
-            timer_cycle* m_timer_cycle;
 
     };
 }

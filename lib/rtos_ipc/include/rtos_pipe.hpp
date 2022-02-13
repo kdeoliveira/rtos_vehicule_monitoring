@@ -128,6 +128,8 @@ namespace rtos
                             x(static_cast<T>(p));
                         }
                     }
+                }else{
+                    return -1;
                 }
 
             }

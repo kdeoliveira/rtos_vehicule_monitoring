@@ -31,7 +31,6 @@ int main(int argc, char * argv[]){
 
     _V2::system_clock::time_point start, stop;
 
-
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
         int m_arg_col = 0;
@@ -80,7 +79,6 @@ int main(int argc, char * argv[]){
     });
 
     
-    pipe.read_pipe<char*>();
     pipe.read_pipe<char*>();
 
 

@@ -13,7 +13,7 @@ namespace rtos{
         
             virtual ~thread_safe(){}
 
-            virtual void add(const T& item, const int i){
+            void add(const T& item, const int i){
                 std::unique_lock ul(this->m_mx);
                 this->__add(item, i);
             }

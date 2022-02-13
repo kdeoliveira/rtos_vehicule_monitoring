@@ -8,12 +8,13 @@
 #include <condition_variable>
 #include <rtos_buffer.hpp>
 
+
 std::condition_variable m_cd;
 bool ready = true;
 
 class FuelConsumption : public rtos::Task<char *>{
     public:
-        FuelConsumption(std::stack<char *> x) : rtos::Task<char *>{x}{}
+        FuelConsumption(std::stack<char *> x){}
         void run() override{
             int i = 0;
 
@@ -22,12 +23,10 @@ class FuelConsumption : public rtos::Task<char *>{
                 std::unique_lock<std::mutex> ul(this->m_mx);
 
                 m_cd.wait(ul, [&]{
-                    return !this->m_input_stack.empty();
+                    return true;
                 });
 
                 
-                std::cout << this->m_input_stack.top() << std::endl;
-                this->m_input_stack.pop();
                 ready = true;
                 m_cd.notify_one();
             }
@@ -47,7 +46,7 @@ class FuelConsumption : public rtos::Task<char *>{
 
 class Producer : public rtos::Task<char *>{
     public:
-    Producer(std::stack<char *> x) : rtos::Task<char *>{x}{}
+    Producer(std::stack<char *> x){}
     void run() override{
         int i = 0;
         while(true){
@@ -63,7 +62,6 @@ class Producer : public rtos::Task<char *>{
             char * temp = new char[20];
             sprintf(temp, "test: %d", i);
 
-            this->m_input_stack.push(temp);
             i++;
             
             m_cd.notify_one();
@@ -77,7 +75,7 @@ class Producer : public rtos::Task<char *>{
 
 class MainThread : public rtos::Thread<char*>{
     public:
-        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false}{
+        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{
         }
 
     private:
@@ -113,10 +111,10 @@ int main(int argc, char *argv[])
 
 
 
-        // thread->start();
-        // thread1->start();
-        // thread->join();
-        // thread1->join();
+        thread->start();
+        thread1->start();
+        thread->join();
+        thread1->join();
     }catch(const char* e){
         puts(e);
     }

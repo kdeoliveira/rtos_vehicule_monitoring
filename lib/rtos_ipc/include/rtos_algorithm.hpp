@@ -8,6 +8,7 @@ namespace rtos{
     class algorithm{
         public:
             algorithm() = delete;
+            algorithm(T* que) : m_queue{que}{}
             ~algorithm(){
                 delete this->m_queue;
             }

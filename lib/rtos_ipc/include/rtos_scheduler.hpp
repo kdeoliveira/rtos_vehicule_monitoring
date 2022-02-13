@@ -49,8 +49,8 @@ namespace rtos{
             // }
 
 
-
-            void dispatch(){
+            //Dispatch task though _sig signal
+            void dispatch(const int _sig){
                 
                 siginfo_t info;
                 // sigset_t set = util::mask_signal(this->m_signum);
@@ -63,11 +63,15 @@ namespace rtos{
                     
                     
                     sigwaitinfo(&set, &info);
-                    
+
+
                     if(this->m_algorithm != nullptr){
                         
-                        this->m_algorithm->run(&this->m_cycles, this->m_signum);
+                        this->m_algorithm->run(&this->m_cycles, _sig);
                     }
+
+                    ++this->m_cycles;
+
                     
                 }
             }

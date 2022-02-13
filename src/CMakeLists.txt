@@ -41,3 +41,7 @@ target_link_libraries(
     scheduling rtos_ipc
 )
 
+target_link_libraries(
+    scheduling rtos_data
+)
+
