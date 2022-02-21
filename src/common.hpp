@@ -2,6 +2,16 @@
 #include <map>
 
 
+struct period_task
+{
+    period_task(){}
+    pthread_t thread_id = 0;
+    uint8_t period = 0;
+};
+
+
+
+
 enum SensorsHeader : u_int8_t{
     Fuel_consumption,
     Accelerator_Pedal_value,
@@ -78,6 +88,23 @@ struct or_type{
     T* val_t;
     K* val_k;
 };
+
+
+// BUFFERING IN/OUT PACKETS PLUS HEADERS
+
+#include <rtos_packet.hpp>
+#include <rtos_buffer.hpp>
+
+
+
+ struct buffer_packet{
+    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>* buffer;
+    // sem_t* semaphore;
+ };
+
+ typedef struct buffer_packet buffer_packets;
+
+
 
 
 #include <chrono>

@@ -5,23 +5,37 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <rtos_task.hpp>
+#include <rtos_buffer.hpp>
 
 #include "common.hpp"
 
+#include <rtos_packet.hpp>
 #include <rtos_file.hpp>
 #include <rtos_pipe.hpp>
 
 #include <semaphore.h>
 
-#include <algorithm>
-
 
 #include <rtos_shared_mem.hpp>
 
+ struct buffer_packet{
+    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>* buffer;
+    // sem_t* semaphore;
+
+    // buffer_packet() : buffer(54){}
+ };
+
+ typedef struct buffer_packet buffer_packets;
 
 
 
 
+struct period_task
+{
+    period_task(){}
+    pthread_t thread_id = 0;
+    uint8_t period = 0;
+};
 
 class ProducerSchedulerAlgo : public rtos::algorithm<period_task>
 {
@@ -67,27 +81,9 @@ public:
 
         printf("Cycle: %u\n", _timer_cycle->cycles);
 
-        if(_timer_cycle->cycles <= this->size()){
-            
-
-
-            //kill thread by period value provided
-            for(int i{0}; i < this->size() ; i++){
-                printf("[debug] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
-                if(_timer_cycle->cycles == this->m_queue[i].period){
-                    printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
-                    pthread_kill(this->m_queue[i].thread_id, _signmum);
-
-                    return nullptr;
-                }
-            }
-
-
-            //kill thread by order of queue
-            // if(this->m_queue[(int)_timer_cycle->cycles].period == _timer_cycle->cycles){
-            //     printf("[producer] ptask id: %lu\n", this->m_queue[(int)_timer_cycle->cycles].thread_id);
-            //     pthread_kill(this->m_queue[_timer_cycle->cycles].thread_id, _signmum);
-            // }
+        if(_timer_cycle->cycles < m_index){
+            printf("ptask id: %lu\n", this->m_queue[(int)_timer_cycle->cycles].thread_id);
+            pthread_kill(this->m_queue[_timer_cycle->cycles].thread_id, _signmum);
         }
         return nullptr;
     }
@@ -122,15 +118,15 @@ class FuelConsumption : public rtos::Task<char *>{
         std::mutex m_mx;
         // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
         rtos::SharedMem<buffer_packets> m_input_buffer;
+
+
         
 };
 
 class Producer : public rtos::Task<char *>{
     public:
     Producer(const char* shared_name, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{shared_name}{
-
     using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
-
     m_input_buffer->buffer = new _type(54);
 
     pipe.onRead( [&](char* arg){
@@ -193,7 +189,7 @@ class Producer : public rtos::Task<char *>{
 
 class MainThread : public rtos::Thread<char*>{
     public:
-        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{    //Sensible to SIGUSR2 signal
+        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{
         }
 
     private:
@@ -219,19 +215,6 @@ int main(int argc, char *argv[])
     try{
 
     
-    {
-        rtos::buffer<char> test_buffer{10};
-
-        test_buffer[0] = 'K';
-
-        rtos::buffer<char> test2_buffer = std::move(test_buffer);
-
-        std::cout << test2_buffer[0] << std::endl;
-
-    }
-    
-
-
 
     uid_t uid = geteuid();
     char whoami[20];
@@ -248,9 +231,7 @@ int main(int argc, char *argv[])
     int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
 
 
-    // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
-
-
+    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
 
     
@@ -265,23 +246,6 @@ int main(int argc, char *argv[])
     {
     std::cout << "HERE CALLED" << std::endl;
 
-        pid_t parent_pid = getppid();
-
-
-        pid_t pid_consumer = fork();
-
-        if(pid_consumer == 0){
-            const char* _argv = new char[0];
-            if(execl("/home/dev/dev/rtos_vehicule_monitoring/build/src/output",_argv, NULL) < 0){
-                perror("execl");
-            }
-            _exit(EXIT_SUCCESS);
-        }else{
-
-
-            // ========= NOTE =========
-            //Timer should be moved to the Process Manager (main.cpp) and output called from there
-
 
         rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR1};
 
@@ -293,36 +257,30 @@ int main(int argc, char *argv[])
             sigval_t value;
             value.sival_int = 10;
             // kill(getppid(), SIGUSR1);
-            // sigqueue(parent_pid, SIGUSR1, value);
-            sigqueue(pid_consumer, SIGUSR1, value);
+            sigqueue(getppid(), SIGUSR1, value);
+
 
             
-
+            
+            
             });
 
 
-            m_timer.notify(0, SIGUSR1, nullptr);
+        m_timer.notify(0, SIGUSR1, nullptr);
 
-            _exit(EXIT_SUCCESS);
-
-
-        }
-
-        // _exit(EXIT_SUCCESS);
+        _exit(EXIT_SUCCESS);
     }
     else
     {
 
-        
-
-        // rtos::Task<char*>* fc = new FuelConsumption("m_buffer_input");
+        rtos::Task<char*>* fc = new FuelConsumption("m_buffer_input");
         rtos::Task<char*>* pd = new Producer("m_buffer_input", arg_fd);
 
 
-        // std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);
+        std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);
         std::unique_ptr<MainThread> thread1 = std::make_unique<MainThread>(10, pd);
 
-        // thread->start();
+        thread->start();
         thread1->start();
 
 
@@ -331,20 +289,20 @@ int main(int argc, char *argv[])
         auto *algo = new ProducerSchedulerAlgo{2};
         rtos::Scheduler sched{SIGUSR1, algo};
 
-        period_task p_task[1];
-        // p_task[0].period = (uint8_t) 2;
-        // p_task[0].thread_id = thread->get_thread_id();
+        period_task p_task[2];
+        p_task[0].period = (uint8_t) 2;
+        p_task[0].thread_id = thread->get_thread_id();
 
 
-        p_task[0].period = (uint8_t) 1;
-        p_task[0].thread_id = thread1->get_thread_id();
+        p_task[1].period = (uint8_t) 1;
+        p_task[1].thread_id = thread1->get_thread_id();
 
-        algo->push(p_task[0]);
+        algo->push(p_task[0], p_task[1]);
 
-        //pthread_kill signal SIGNUM
+        //TOOD: !!Check if sigwaitinfo() indeed stop process!!
         sched.dispatch(SIGUSR2);
 
-        // thread->join();
+        thread->join();
         thread1->join();
 
 
