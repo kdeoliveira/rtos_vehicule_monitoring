@@ -7,7 +7,7 @@
 #include <utility>
 #include <deque>
 #include <sys/stat.h>
-#include "rtos_common.hpp"
+#include <rtos_common.hpp>
 
 
 namespace rtos
@@ -43,6 +43,9 @@ namespace rtos
             this->file_size = st.st_size;
 
         }
+
+        InputFile(const InputFile&) = delete;
+        InputFile& operator=(const InputFile&) = delete;
 
         void open(const char* filename){
             try{
