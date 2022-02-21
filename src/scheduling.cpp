@@ -13,6 +13,20 @@
 #include <rtos_file.hpp>
 #include <rtos_pipe.hpp>
 
+#include <semaphore.h>
+
+
+#include <rtos_shared_mem.hpp>
+
+ struct buffer_packet{
+    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>* buffer;
+    // sem_t* semaphore;
+
+    // buffer_packet() : buffer(54){}
+ };
+
+ typedef struct buffer_packet buffer_packets;
+
 
 
 
@@ -82,13 +96,14 @@ bool ready = true;
 
 class FuelConsumption : public rtos::Task<char *>{
     public:
-        FuelConsumption(rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& x) : m_input_buffer{x}{}
+        FuelConsumption(const char* shared_name) : m_input_buffer{shared_name}{}
         void run() override{
 
             puts("From fuel consumption");
 
+            std::cout << m_input_buffer->buffer->at(SensorsHeader::Fuel_consumption) << std::endl;
 
-            for(auto& x : m_input_buffer){
+            for(auto& x : *m_input_buffer->buffer){
                 std::cout << x;
             }
             std::cout <<std::endl;            
@@ -101,14 +116,19 @@ class FuelConsumption : public rtos::Task<char *>{
 
     private:
         std::mutex m_mx;
-        rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
+        // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
+        rtos::SharedMem<buffer_packets> m_input_buffer;
+
 
         
 };
 
 class Producer : public rtos::Task<char *>{
     public:
-    Producer(rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& x, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{x}{
+    Producer(const char* shared_name, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{shared_name}{
+    using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
+    m_input_buffer->buffer = new _type(54);
+
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
         int m_arg_col = 0;
@@ -126,7 +146,7 @@ class Producer : public rtos::Task<char *>{
         if(m_arg_row > 0){
             *m_packet = SensorsHeader(m_arg_col);
             *m_packet << (float) atof(res);
-            m_input_buffer.add(*m_packet, m_arg_col);
+            m_input_buffer->buffer->add(*m_packet, m_arg_col);
 
         }
 
@@ -143,7 +163,7 @@ class Producer : public rtos::Task<char *>{
                 }else{
                     *m_packet << (float) atof(res);
                 }
-                m_input_buffer.add(*m_packet, m_arg_col);
+                m_input_buffer->buffer->add(*m_packet, m_arg_col);
 
             }
         }
@@ -160,7 +180,9 @@ class Producer : public rtos::Task<char *>{
     private:
         std::mutex m_mx;
         rtos::PipeManager pipe;
-        rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
+        // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
+        rtos::SharedMem<buffer_packets> m_input_buffer;
+
 
 };
 
@@ -183,6 +205,8 @@ class MainThread : public rtos::Thread<char*>{
  // =================== MAIN ================
  //
  //
+
+
 
 
 
@@ -249,8 +273,8 @@ int main(int argc, char *argv[])
     else
     {
 
-        rtos::Task<char*>* fc = new FuelConsumption(m_buffer_input);
-        rtos::Task<char*>* pd = new Producer(m_buffer_input, arg_fd);
+        rtos::Task<char*>* fc = new FuelConsumption("m_buffer_input");
+        rtos::Task<char*>* pd = new Producer("m_buffer_input", arg_fd);
 
 
         std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);

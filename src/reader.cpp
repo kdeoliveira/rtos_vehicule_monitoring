@@ -4,9 +4,18 @@
 #include <rtos_data.hpp>
 #include "common.hpp"
 
+#include <rtos_shared_mem.hpp>
+
 #include <rtos_buffer.hpp>
 
-#include <variant>
+
+
+
+struct shmem_obj{
+    char buffer[10];
+};
+
+typedef struct shmem_obj shmem;
 
 int main(int argc, char * argv[]){
     uid_t uid = geteuid();
@@ -17,6 +26,19 @@ int main(int argc, char * argv[]){
     sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
 
     
+    puts("starting app ...");
+
+    {
+
+        rtos::SharedMem<shmem> shared_memory{"test_mem"};
+
+        shared_memory->buffer[0] = 'k';
+        shared_memory->buffer[1] = 'e';
+
+        std::cout << shared_memory->buffer << std::endl;
+
+    }
+
 
     rtos::InputFile input_file(filename);
 
@@ -24,12 +46,13 @@ int main(int argc, char * argv[]){
 
     rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
-    if(argc != 3) exit(EXIT_FAILURE);
+    if(argc != 3) exit(EXIT_SUCCESS);
     int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
 
     rtos::PipeManager pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT};
 
     _V2::system_clock::time_point start, stop;
+
 
     pipe.onRead( [&](char* arg){
         static int m_arg_row;

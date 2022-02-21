@@ -30,6 +30,10 @@ target_link_libraries(
 )
 
 target_link_libraries(
+    reader rtos_common
+)
+
+target_link_libraries(
     producer rtos_ipc
 )
 

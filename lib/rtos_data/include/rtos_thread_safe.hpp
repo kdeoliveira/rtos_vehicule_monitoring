@@ -40,6 +40,7 @@ namespace rtos{
 
         private:
             std::mutex m_mx;
+            //add cv for adding or accessing properties on producer-consumer algo with internal flag
             std::condition_variable m_cv;
     
     };
