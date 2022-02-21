@@ -30,7 +30,7 @@ namespace rtos{
         R payload;
 
         constexpr size_t size() const{
-            return sizeof(payload) + sizeof(header);
+            return sizeof(R);
         }
 
 
