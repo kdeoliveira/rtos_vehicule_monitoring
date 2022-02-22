@@ -82,7 +82,6 @@ class MainThread : public rtos::Thread<char*>{
 int main(int argc, char *argv[])
 {
     try{
-        std::system("xterm");
         puts("Starting consumer task");
 
         rtos::Task<char *>* consumer = new FuelConsumption("m_buffer_input");

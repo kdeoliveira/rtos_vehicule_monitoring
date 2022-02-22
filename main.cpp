@@ -50,15 +50,12 @@ int main(int argc, char *argv[])
         if(child_pid == 0){
             const char *arg_pid = std::to_string(getpid()).c_str();
             path += "/src/output";
-            path ="gnome-terminal -e "+path;
 
-            // if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
-            // {
-            //     perror("execl");
-            // }
+            if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
+            {
+                perror("execl");
+            }
 
-
-            std::system(path.c_str());
         _exit(EXIT_SUCCESS);
 
         }else{
