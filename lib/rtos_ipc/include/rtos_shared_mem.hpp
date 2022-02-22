@@ -27,6 +27,7 @@ namespace rtos
             if (ftruncate(this->m_fd, sizeof(T)) == -1)
             {
                 throw "Unable to set size on file descriptor";
+                perror("ftruncate");
             }
 
             m_object = new T{};
@@ -35,10 +36,11 @@ namespace rtos
                 nullptr, sizeof(*m_object), PROT_READ | PROT_WRITE, MAP_SHARED, this->m_fd, 0);
             if (this->m_object == MAP_FAILED)
                 perror("mmap");
+            
         }
 
         ~SharedMem()
-        {
+        {   
             shm_unlink(this->m_name);
 
             munmap(m_object, sizeof(*m_object));

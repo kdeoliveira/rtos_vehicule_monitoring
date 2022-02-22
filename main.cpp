@@ -9,16 +9,25 @@
 #include <iostream>
 #include <fcntl.h>
 #include <rtos_ipc.hpp>
+#include <rtos_timer.hpp>
 
 int main(int argc, char *argv[])
 {
     rtos::util::mask_signal(SIGUSR1);
     rtos::util::mask_signal(SIGUSR2);
+    rtos::util::mask_signal(SIGALRM);
 
+
+
+    pid_t main_sig;
 
     int fd[2];
 
     pid_t pid = fork();
+
+    if(pid > 0){
+        main_sig = pid;
+    }
 
     if (pid == 0)
     {
@@ -40,13 +49,16 @@ int main(int argc, char *argv[])
 
         if(child_pid == 0){
             const char *arg_pid = std::to_string(getpid()).c_str();
-        
-            path += "/src/writer";
+            path += "/src/output";
+            path ="gnome-terminal -e "+path;
 
-            if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
-            {
-                perror("execl");
-            }
+            // if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
+            // {
+            //     perror("execl");
+            // }
+
+
+            std::system(path.c_str());
         _exit(EXIT_SUCCESS);
 
         }else{
@@ -69,6 +81,27 @@ int main(int argc, char *argv[])
 
     else
     {
+
+        rtos::Timer m_timer{CLOCK_REALTIME, SIGALRM};
+
+        if (m_timer.start(2, 0) < 0)
+            perror("timer_settime");
+
+        m_timer.onNotify([&](void *val)
+                         {
+            sigval_t value;
+            value.sival_int = 10;
+            // kill(getppid(), SIGUSR1);
+            // sigqueue(parent_pid, SIGUSR1, value);
+        
+            kill(0, SIGUSR1);
+            // sigqueue(pid, SIGUSR1, value);
+
+            
+
+        });
+
+        m_timer.notify(0, SIGALRM, nullptr);
 
         int status;
         if (waitpid(pid, &status, 0) > 0)

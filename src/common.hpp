@@ -98,7 +98,9 @@ struct or_type{
 
 
  struct buffer_packet{
-    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>* buffer;
+    char temp_buffer[30];
+    int status;
+    rtos::packet_data<SensorsHeader, SensorValue> buffer[54];
     // sem_t* semaphore;
  };
 

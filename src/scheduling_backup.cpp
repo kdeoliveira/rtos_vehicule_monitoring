@@ -18,24 +18,6 @@
 
 #include <rtos_shared_mem.hpp>
 
- struct buffer_packet{
-    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>* buffer;
-    // sem_t* semaphore;
-
-    // buffer_packet() : buffer(54){}
- };
-
- typedef struct buffer_packet buffer_packets;
-
-
-
-
-struct period_task
-{
-    period_task(){}
-    pthread_t thread_id = 0;
-    uint8_t period = 0;
-};
 
 class ProducerSchedulerAlgo : public rtos::algorithm<period_task>
 {
@@ -101,9 +83,9 @@ class FuelConsumption : public rtos::Task<char *>{
 
             puts("From fuel consumption");
 
-            std::cout << m_input_buffer->buffer->at(SensorsHeader::Fuel_consumption) << std::endl;
+            std::cout << m_input_buffer->buffer.at(SensorsHeader::Fuel_consumption) << std::endl;
 
-            for(auto& x : *m_input_buffer->buffer){
+            for(auto& x : m_input_buffer->buffer){
                 std::cout << x;
             }
             std::cout <<std::endl;            
@@ -127,7 +109,7 @@ class Producer : public rtos::Task<char *>{
     public:
     Producer(const char* shared_name, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{shared_name}{
     using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
-    m_input_buffer->buffer = new _type(54);
+    m_input_buffer->buffer = _type(54);
 
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
@@ -146,7 +128,7 @@ class Producer : public rtos::Task<char *>{
         if(m_arg_row > 0){
             *m_packet = SensorsHeader(m_arg_col);
             *m_packet << (float) atof(res);
-            m_input_buffer->buffer->add(*m_packet, m_arg_col);
+            m_input_buffer->buffer.add(*m_packet, m_arg_col);
 
         }
 
@@ -163,7 +145,7 @@ class Producer : public rtos::Task<char *>{
                 }else{
                     *m_packet << (float) atof(res);
                 }
-                m_input_buffer->buffer->add(*m_packet, m_arg_col);
+                m_input_buffer->buffer.add(*m_packet, m_arg_col);
 
             }
         }
@@ -227,11 +209,14 @@ int main(int argc, char *argv[])
 
     rtos::InputFile input_file(filename);
 
-    if(argc != 3) exit(EXIT_FAILURE);
-    int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
+    // if(argc != 3) exit(EXIT_FAILURE);
+    int temp_fd[2];
+    pipe(temp_fd);
+
+    int arg_fd[2] = {input_file.get_fd(), temp_fd[1]};
 
 
-    rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
+    // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
 
     

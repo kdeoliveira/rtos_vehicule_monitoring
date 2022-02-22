@@ -30,7 +30,7 @@ namespace rtos{
 
             template<typename R>
             buffer& operator=(buffer<R>&& in){
-                swap(*this, std::forward<typename std::remove_reference<R>::type>(in) );
+                swap(*this, in );
                 return *this;
             }
 

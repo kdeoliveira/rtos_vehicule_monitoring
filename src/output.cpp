@@ -24,21 +24,21 @@ public:
 
     void *run(rtos::timer_cycle *_timer_cycle, const int &_sig) const override
     {
-        if (_timer_cycle->cycles <= this->size())
-        {
+        printf("[consumer] Cycle: %u\n", _timer_cycle->cycles);
+        
 
             for (int i{0}; i < this->size(); i++)
             {
-                printf("[debug] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
+                printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                 if (_timer_cycle->cycles == this->m_queue[i].period)
                 {
-                    printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
+                    printf("[consumer] ptask id: %lu\n", this->m_queue[i].thread_id);
                     pthread_kill(this->m_queue[i].thread_id, _sig);
 
                     return nullptr;
                 }
             }
-        }
+        
 
         return nullptr;
     }
@@ -50,11 +50,8 @@ class FuelConsumption : public rtos::Task<char *>{
         FuelConsumption(const char* shared_name) : m_input_buffer{shared_name}{}
         void run() override{
 
-            puts("From fuel consumption");
 
-            std::cout << m_input_buffer->buffer->at(SensorsHeader::Fuel_consumption) << std::endl;
-
-            for(auto& x : *m_input_buffer->buffer){
+            for(auto& x : m_input_buffer->buffer){
                 std::cout << x;
             }
             std::cout <<std::endl;            
@@ -84,27 +81,36 @@ class MainThread : public rtos::Thread<char*>{
 
 int main(int argc, char *argv[])
 {
+    try{
+        std::system("xterm");
+        puts("Starting consumer task");
 
-    rtos::Task<char *>* consumer = new FuelConsumption("m_buffer_input");
+        rtos::Task<char *>* consumer = new FuelConsumption("m_buffer_input");
 
-    std::unique_ptr<MainThread> thread_consumer  = std::make_unique<MainThread>(5, consumer);
+        std::unique_ptr<MainThread> thread_consumer  = std::make_unique<MainThread>(5, consumer);
 
 
-    thread_consumer->start();
+        thread_consumer->start();
 
-    auto *algo = new ConsumerSchedulerAlgo{1};
+        auto *algo = new ConsumerSchedulerAlgo{1};
 
-    rtos::Scheduler sched_consumer{SIGUSR1, algo};
+        rtos::Scheduler sched_consumer{SIGUSR1, algo};
 
-    period_task c_task[1];
-    c_task[0].period = (uint8_t)2;
-    c_task[0].thread_id = thread_consumer->get_thread_id();
+        period_task c_task[1];
+        c_task[0].period = (uint8_t)3;
+        c_task[0].thread_id = thread_consumer->get_thread_id();
 
-    algo->push(c_task[0]);
+        algo->push(c_task[0]);
 
-    sched_consumer.dispatch(SIGUSR2);
+        sched_consumer.dispatch(SIGUSR2);
 
-    thread_consumer->join();
+        thread_consumer->join();
+
+    }
+    catch(std::exception& e){
+        std::cout << "ERROR: " << e.what() << std::endl;
+    }
+
 
     return EXIT_SUCCESS;
 }

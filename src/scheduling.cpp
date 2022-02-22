@@ -19,6 +19,7 @@
 #include <rtos_shared_mem.hpp>
 
 
+#include <cstring>
 
 
 
@@ -48,32 +49,31 @@ public:
         int current;
         struct timespec tv;
 
-        if (start == 0)
-        {
-            clock_gettime(CLOCK_MONOTONIC, &tv);
-            start = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
-        }
+        // if (start == 0)
+        // {
+        //     clock_gettime(CLOCK_MONOTONIC, &tv);
+        //     start = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
+        // }
 
-        clock_gettime(CLOCK_MONOTONIC, &tv);
-        current = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
-
-
-
-        if (_timer_cycle->cycles > 0)
-        {
-            printf("Current time spend: %f\n",  (double)(current - start));
-        }
+        // clock_gettime(CLOCK_MONOTONIC, &tv);
+        // current = tv.tv_sec * rtos::Timer::THOUSAND + tv.tv_nsec / rtos::Timer::MILLION;
 
 
-        printf("Cycle: %u\n", _timer_cycle->cycles);
 
-        if(_timer_cycle->cycles <= this->size()){
+        // if (_timer_cycle->cycles > 0)
+        // {
+        //     printf("Current time spend: %f\n",  (double)(current - start));
+        // }
+
+
+        printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
+
             
 
 
             //kill thread by period value provided
             for(int i{0}; i < this->size() ; i++){
-                printf("[debug] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
+                printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                 if(_timer_cycle->cycles == this->m_queue[i].period){
                     printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
                     pthread_kill(this->m_queue[i].thread_id, _signmum);
@@ -88,42 +88,11 @@ public:
             //     printf("[producer] ptask id: %lu\n", this->m_queue[(int)_timer_cycle->cycles].thread_id);
             //     pthread_kill(this->m_queue[_timer_cycle->cycles].thread_id, _signmum);
             // }
-        }
         return nullptr;
     }
 };
 
 
-
-std::condition_variable m_cd;
-bool ready = true;
-
-class FuelConsumption : public rtos::Task<char *>{
-    public:
-        FuelConsumption(const char* shared_name) : m_input_buffer{shared_name}{}
-        void run() override{
-
-            puts("From fuel consumption");
-
-            std::cout << m_input_buffer->buffer->at(SensorsHeader::Fuel_consumption) << std::endl;
-
-            for(auto& x : *m_input_buffer->buffer){
-                std::cout << x;
-            }
-            std::cout <<std::endl;            
-        }
-
-        ~FuelConsumption(){
-            // delete m_packet_data;
-            // delete m_packet_header;
-        }
-
-    private:
-        std::mutex m_mx;
-        // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
-        rtos::SharedMem<buffer_packets> m_input_buffer;
-        
-};
 
 class Producer : public rtos::Task<char *>{
     public:
@@ -131,47 +100,51 @@ class Producer : public rtos::Task<char *>{
 
     using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
 
-    m_input_buffer->buffer = new _type(54);
+    // m_input_buffer->buffer = _type{54};
+    // m_input_buffer->buffer = new _type[];
+    m_input_buffer->status = 10;
+
 
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
         int m_arg_col = 0;
 
-
-
-
-        std::unique_ptr<rtos::packet_data<SensorsHeader, SensorValue>> m_packet = std::make_unique<rtos::packet_data<SensorsHeader, SensorValue>>();
-
+        rtos::packet_data<SensorsHeader, SensorValue> m_packet{};
 
         char* res;
 
         res = strtok(arg, ",");
 
         if(m_arg_row > 0){
-            *m_packet = SensorsHeader(m_arg_col);
-            *m_packet << (float) atof(res);
-            m_input_buffer->buffer->add(*m_packet, m_arg_col);
+            m_packet = SensorsHeader(m_arg_col);
+            m_packet << (float) atof(res);
+
+            // std::memcpy(this->m_input_buffer->buffer.begin(), (const void *)m_packet.get(), sizeof(m_packet));
+
+            std::strcpy(this->m_input_buffer->temp_buffer, res);
+
+            m_input_buffer->buffer[m_arg_col] = m_packet;
 
         }
-
         
         while( (res = strtok(nullptr, ",")) != nullptr){
             ++m_arg_col;
 
-
             if(m_arg_row > 0){
-                *m_packet = SensorsHeader(m_arg_col);
+                m_packet = SensorsHeader(m_arg_col);
                 if(m_arg_col == 52){
-                    *m_packet << static_cast<float>(*res);
-
+                    m_packet << static_cast<float>(*res);
                 }else{
-                    *m_packet << (float) atof(res);
+                    m_packet << (float) atof(res);
                 }
-                m_input_buffer->buffer->add(*m_packet, m_arg_col);
+                this->m_input_buffer->buffer[m_arg_col] = m_packet;
 
             }
         }
+
+        m_input_buffer->status = m_input_buffer->status  + 1;
         m_arg_row++;
+
     });
     }
     void run() override{
@@ -186,6 +159,7 @@ class Producer : public rtos::Task<char *>{
         rtos::PipeManager pipe;
         // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
         rtos::SharedMem<buffer_packets> m_input_buffer;
+
 
 
 };
@@ -209,26 +183,21 @@ class MainThread : public rtos::Thread<char*>{
  // =================== MAIN ================
  //
  //
-
-
-
-
-
 int main(int argc, char *argv[])
 {
     try{
 
     
-    {
-        rtos::buffer<char> test_buffer{10};
+    // {
+    //     rtos::buffer<char> test_buffer{10};
 
-        test_buffer[0] = 'K';
+    //     test_buffer[0] = 'K';
 
-        rtos::buffer<char> test2_buffer = std::move(test_buffer);
+    //     rtos::buffer<char> test2_buffer = std::move(test_buffer);
 
-        std::cout << test2_buffer[0] << std::endl;
+    //     std::cout << test2_buffer[0] << std::endl;
 
-    }
+    // }
     
 
 
@@ -251,68 +220,7 @@ int main(int argc, char *argv[])
     // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
 
-
-
-    
-
-
-    pid_t pid = fork();
-
-    if (pid < 0)
-        return -1;
-
-    if (pid == 0)
-    {
-    std::cout << "HERE CALLED" << std::endl;
-
-        pid_t parent_pid = getppid();
-
-
-        pid_t pid_consumer = fork();
-
-        if(pid_consumer == 0){
-            const char* _argv = new char[0];
-            if(execl("/home/dev/dev/rtos_vehicule_monitoring/build/src/output",_argv, NULL) < 0){
-                perror("execl");
-            }
-            _exit(EXIT_SUCCESS);
-        }else{
-
-
-            // ========= NOTE =========
-            //Timer should be moved to the Process Manager (main.cpp) and output called from there
-
-
-        rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR1};
-
-        if (m_timer.start(2, 0) < 0)
-            perror("timer_settime");
-
-        m_timer.onNotify([&](void *val)
-                         {
-            sigval_t value;
-            value.sival_int = 10;
-            // kill(getppid(), SIGUSR1);
-            // sigqueue(parent_pid, SIGUSR1, value);
-            sigqueue(pid_consumer, SIGUSR1, value);
-
-            
-
-            });
-
-
-            m_timer.notify(0, SIGUSR1, nullptr);
-
-            _exit(EXIT_SUCCESS);
-
-
-        }
-
-        // _exit(EXIT_SUCCESS);
-    }
-    else
-    {
-
+        puts("Starting producer task");
         
 
         // rtos::Task<char*>* fc = new FuelConsumption("m_buffer_input");
@@ -328,7 +236,7 @@ int main(int argc, char *argv[])
 
 
 
-        auto *algo = new ProducerSchedulerAlgo{2};
+        auto *algo = new ProducerSchedulerAlgo{1};
         rtos::Scheduler sched{SIGUSR1, algo};
 
         period_task p_task[1];
@@ -340,7 +248,8 @@ int main(int argc, char *argv[])
         p_task[0].thread_id = thread1->get_thread_id();
 
         algo->push(p_task[0]);
-
+        puts("Dispatching producer scheduler...");
+        
         //pthread_kill signal SIGNUM
         sched.dispatch(SIGUSR2);
 
@@ -350,13 +259,11 @@ int main(int argc, char *argv[])
 
 
 
-        _exit(EXIT_SUCCESS);
 
-    }
     }
     catch(std::exception &e ){
         puts(e.what());
     }
-
+    puts("End of schedulng");
     return EXIT_SUCCESS;
 }
