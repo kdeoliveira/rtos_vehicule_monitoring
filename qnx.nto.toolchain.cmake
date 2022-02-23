@@ -1,3 +1,5 @@
+# cmake CMAKE_TOOLCHAIN_FILE=qnx.nto.toolchain.cmake -S . -B build_qnx
+
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 SET (CMAKE_CXX_COMPILER_WORKS 1)
 
