@@ -93,6 +93,7 @@ out/
 # Gradle files
 .gradle/
 build/
+build_qnx/
 
 # Local configuration file (sdk path, etc)
 local.properties

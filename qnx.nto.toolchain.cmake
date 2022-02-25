@@ -1,13 +1,15 @@
 # cmake CMAKE_TOOLCHAIN_FILE=qnx.nto.toolchain.cmake -S . -B build_qnx
+# QNX: Import and use Toolchain QNX Multi-toolchain
 
-set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-SET (CMAKE_CXX_COMPILER_WORKS 1)
+
+# set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+# SET (CMAKE_CXX_COMPILER_WORKS 1)
 
 set(QNX_HOST "/home/kdeoliveira/app/qnx/qnx710/host/linux/x86_64")
 set(QNX_TARGET "/home/kdeoliveira/app/qnx/qnx7")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-std=c++14")
-SET(CMAKE_CXX_FLAGS_RELEASE "-std=c++14")
+SET(CMAKE_CXX_FLAGS_DEBUG "-std=c++17")
+SET(CMAKE_CXX_FLAGS_RELEASE "-std=c++17")
 
 if("$ENV{QNX_HOST}" STREQUAL "")
   message(FATAL_ERROR "QNX_HOST environment variable not found. Please set the variable to your host's build tools")
@@ -32,8 +34,8 @@ set(THREADS_PTHREAD_ARG "0"
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Vgcc_ntox86_64 -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX -DTIXML_USE_STL -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-attributes ${EXTRA_CMAKE_C_FLAGS}" CACHE STRING "c_flags")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Vgcc_ntox86_64 -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX -DTIXML_USE_STL -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-attributes ${EXTRA_CMAKE_CXX_FLAGS}" CACHE STRING "cxx_flags")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Vgcc_ntox86_64 -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX ${EXTRA_CMAKE_C_FLAGS}" CACHE STRING "c_flags")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Vgcc_ntox86_64 -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX -DTIXML_USE_STL -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-attributes -fsized-deallocation ${EXTRA_CMAKE_CXX_FLAGS}" CACHE STRING "cxx_flags")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Vgcc_ntox86_64 -V8.3.0,gcc_ntox86_64 -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX ${EXTRA_CMAKE_C_FLAGS}" CACHE STRING "c_flags")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Vgcc_ntox86_64 -V8.3.0,gcc_ntox86_64_cxx -g -D__USESRCVERSION -D_QNX_SOURCE -DQNX -DTIXML_USE_STL -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable -Wno-ignored-attributes -fsized-deallocation ${EXTRA_CMAKE_CXX_FLAGS}" CACHE STRING "cxx_flags")
 
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -vv")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Y_cxx -std=c++14")

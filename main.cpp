@@ -15,28 +15,23 @@ int main(int argc, char *argv[])
 {
     rtos::util::mask_signal(SIGUSR1);
     rtos::util::mask_signal(SIGUSR2);
-    rtos::util::mask_signal(SIGALRM);
+    // rtos::util::mask_signal(SIGALRM);
 
 
 
-    pid_t main_sig;
 
     int fd[2];
 
     pid_t pid = fork();
-
-    if(pid > 0){
-        main_sig = pid;
-    }
-
-    if (pid == 0)
-    {
 
         if (pipe(fd) < 0)
         {
             perror("pipe");
             exit(EXIT_FAILURE);
         }
+    if (pid == 0)
+    {
+
         char arg_fd_1[2];
         char arg_fd_2[2];
         sprintf(arg_fd_1, "%d", fd[0]);
@@ -48,6 +43,7 @@ int main(int argc, char *argv[])
         pid_t child_pid = fork();
 
         if(child_pid == 0){
+
             const char *arg_pid = std::to_string(getpid()).c_str();
             path += "/src/output";
 
@@ -59,6 +55,7 @@ int main(int argc, char *argv[])
         _exit(EXIT_SUCCESS);
 
         }else{
+
             const char *arg_pid = std::to_string(getpid()).c_str();
         
             std::string path = get_current_dir_name();
@@ -79,26 +76,16 @@ int main(int argc, char *argv[])
     else
     {
 
-        rtos::Timer m_timer{CLOCK_REALTIME, SIGALRM};
+        rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
 
         if (m_timer.start(2, 0) < 0)
             perror("timer_settime");
 
-        m_timer.onNotify([&](void *val)
-                         {
-            sigval_t value;
-            value.sival_int = 10;
-            // kill(getppid(), SIGUSR1);
-            // sigqueue(parent_pid, SIGUSR1, value);
-        
-            kill(0, SIGUSR1);
-            // sigqueue(pid, SIGUSR1, value);
-
-            
-
+        m_timer.onNotify([&](void *val){
+            killpg( getpgid(pid) , SIGUSR1);
         });
 
-        m_timer.notify(0, SIGALRM, nullptr);
+        m_timer.notify(0, nullptr);
 
         int status;
         if (waitpid(pid, &status, 0) > 0)

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0.0)
 project(rtos_vehicule_monitoring VERSION 0.1.0)
 
 add_executable(${PROJECT_NAME} main.cpp)
+add_executable(test_rtos test.cpp)
+
 
 
 include(CTest)

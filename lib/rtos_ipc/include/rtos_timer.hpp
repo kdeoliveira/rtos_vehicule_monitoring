@@ -75,7 +75,7 @@ namespace rtos{
                 return timer_settime(this->m_timer, 0, &m_timerspec, nullptr);
             }
 
-            void notify(pid_t _pid, int _sig, void* _args){
+            void notify(pid_t _pid, void* _args){
                 siginfo_t info;
                 // sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
                 sigset_t set;
