@@ -6,7 +6,6 @@
 #include <cstring>
 #include <type_traits>
 
-#include <variant>
 
 namespace rtos{
     template<typename T>

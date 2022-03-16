@@ -68,9 +68,6 @@ public:
 
         printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
 
-            
-
-
             //kill thread by period value provided
             for(int i{0}; i < this->size() ; i++){
                 printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
@@ -208,8 +205,6 @@ int main(int argc, char *argv[])
     
     char * filename = new char[70];
     sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
-
-    
 
     rtos::InputFile input_file(filename);
 
