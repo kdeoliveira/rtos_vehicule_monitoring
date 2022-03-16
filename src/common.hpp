@@ -6,13 +6,13 @@ struct period_task
 {
     period_task(){}
     pthread_t thread_id = 0;
-    uint8_t period = 0;
+    unsigned char period = 0;
 };
 
 
 
 
-enum SensorsHeader : u_int8_t{
+enum SensorsHeader : unsigned char{
     Fuel_consumption,
     Accelerator_Pedal_value,
     Throttle_position_signal,

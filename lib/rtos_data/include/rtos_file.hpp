@@ -90,11 +90,11 @@ namespace rtos
         //     return this->values.get();
         // }
 
-        constexpr int line_index() const{
+        const int line_index() const{
             return this->_line_index;
         }
 
-        constexpr size_t get_file_size() const{
+        const size_t get_file_size() const{
             return this->file_size;
         }
 

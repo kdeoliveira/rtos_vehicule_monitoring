@@ -23,7 +23,7 @@ int main(int argc, char * argv[]){
     getlogin_r(whoami, sizeof(char*)*20);
     
     char * filename = new char[70];
-    sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
+    sprintf(filename, "/home/qnxuser/data/dataset.csv", whoami);
 
     
     puts("starting app ...");
@@ -47,18 +47,23 @@ int main(int argc, char * argv[]){
     rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
 
     if(argc != 3) exit(EXIT_SUCCESS);
-    int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
+    int temp;
+    sscanf(argv[2], "%d", &temp);
+    puts(argv[2]);
+    int arg_fd[2] = {input_file.get_fd(), temp};
+
+    
 
     rtos::PipeManager pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT};
 
-    _V2::system_clock::time_point start, stop;
+    // _V2::system_clock::time_point start, stop;
 
 
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
         int m_arg_col = 0;
 
-        start = high_resolution_clock::now();
+        // start = high_resolution_clock::now();
 
 
 
@@ -94,9 +99,9 @@ int main(int argc, char * argv[]){
                 m_buffer_input.add(*m_packet, m_arg_col);
             }
         }
-        stop = high_resolution_clock::now();
-        auto duration = duration_cast<nanoseconds>(stop - start);
-        printf("Execution time: %ld ns\n", duration.count());
+        // stop = high_resolution_clock::now();
+        // auto duration = duration_cast<nanoseconds>(stop - start);
+        // printf("Execution time: %ld ns\n", duration.count());
 
         m_arg_row++;
     });

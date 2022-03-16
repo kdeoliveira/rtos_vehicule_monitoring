@@ -37,9 +37,12 @@ target_link_libraries(
 target_link_libraries(
     writer rtos_ipc
 )
-target_link_libraries(
-    writer pthread
-)
+
+if(NOT DEFINED QNX_PROCESSOR)
+    target_link_libraries(
+        writer pthread
+    )
+endif()
 
 target_link_libraries(
     reader rtos_ipc

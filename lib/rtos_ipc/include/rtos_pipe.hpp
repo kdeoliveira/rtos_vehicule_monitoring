@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
-#include <any>
 #include <vector>
 #include <fcntl.h>
 #include <rtos_common.hpp>
@@ -110,7 +109,7 @@ namespace rtos
                 if( read(fd[0], &buffer, sizeof(T) )  > 0 )
                     for(Callback& x : this->callbacks){
                             if(x(typeid(T))){
-                                x(buffer);
+                                x((void *)buffer);
                             }
                     }
                 // }
@@ -125,7 +124,7 @@ namespace rtos
                     for (Callback &x : this->callbacks)
                     {
                         if (x(typeid(T))){
-                            x(static_cast<T>(p));
+                            x((void *)static_cast<T>(p));
                         }
                     }
                 }else{

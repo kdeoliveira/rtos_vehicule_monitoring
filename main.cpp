@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <rtos_ipc.hpp>
 #include <rtos_timer.hpp>
+#include <limits.h>
 
 int main(int argc, char *argv[])
 {
@@ -18,17 +19,19 @@ int main(int argc, char *argv[])
     // rtos::util::mask_signal(SIGALRM);
 
 
-
+    puts("Application starting...");
 
     int fd[2];
 
     pid_t pid = fork();
+
 
         if (pipe(fd) < 0)
         {
             perror("pipe");
             exit(EXIT_FAILURE);
         }
+
     if (pid == 0)
     {
 
@@ -37,12 +40,21 @@ int main(int argc, char *argv[])
         sprintf(arg_fd_1, "%d", fd[0]);
         sprintf(arg_fd_2, "%d", fd[1]);
 
-        std::string path = get_current_dir_name();
+
+        char buf_temp[PATH_MAX + 1];
+
+        getcwd(buf_temp, PATH_MAX + 1);
+
+        puts(buf_temp);
+        
+        std::string path = buf_temp;
+         puts(buf_temp);
 
 
         pid_t child_pid = fork();
 
         if(child_pid == 0){
+
 
             const char *arg_pid = std::to_string(getpid()).c_str();
             path += "/src/output";
@@ -56,10 +68,18 @@ int main(int argc, char *argv[])
 
         }else{
 
+
+
             const char *arg_pid = std::to_string(getpid()).c_str();
-        
-            std::string path = get_current_dir_name();
+
+            char buf_temp[PATH_MAX + 1];
+
+            getcwd(buf_temp, PATH_MAX + 1);
+            puts(buf_temp);
+
+            std::string path = buf_temp;
             path += "/src/scheduling";
+
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
@@ -75,7 +95,7 @@ int main(int argc, char *argv[])
 
     else
     {
-
+        
         rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
 
         if (m_timer.start(2, 0) < 0)
@@ -84,6 +104,7 @@ int main(int argc, char *argv[])
         m_timer.onNotify([&](void *val){
             killpg( getpgid(pid) , SIGUSR1);
         });
+
 
         m_timer.notify(0, nullptr);
 

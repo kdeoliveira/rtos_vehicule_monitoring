@@ -94,20 +94,20 @@ int main(int argc, char *argv[])
         std::unique_ptr<MainThread> thread = std::make_unique<MainThread>(5, fc);
         std::unique_ptr<MainThread> thread1 = std::make_unique<MainThread>(10, pd);
 
-        rtos::buffer<char *> buff(2);
+        // rtos::buffer<char *> buff(2);
 
-        buff[0] = "Kevin";
-        buff[1] = "De Oliveira";
+        // buff[0] = "Kevin";
+        // buff[1] = "De Oliveira";
 
-        std::cout << buff[0] << std::endl;
+        // std::cout << buff[0] << std::endl;
 
-        buff.pop(0);
+        // buff.pop(0);
         
 
-        for(auto& x : buff){
-            if(x != nullptr)
-                puts(x);
-        }
+        // for(auto& x : buff){
+        //     if(x != nullptr)
+        //         puts(x);
+        // }
 
 
 

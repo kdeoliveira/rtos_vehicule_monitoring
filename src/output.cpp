@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
         auto *algo = new ConsumerSchedulerAlgo{1};
 
-        rtos::Scheduler sched_consumer{SIGUSR1, algo};
+        rtos::Scheduler<period_task> sched_consumer{SIGUSR1, algo};
 
         period_task c_task[1];
         c_task[0].period = (uint8_t)3;
@@ -108,6 +108,9 @@ int main(int argc, char *argv[])
     }
     catch(std::exception& e){
         std::cout << "ERROR: " << e.what() << std::endl;
+    }
+    catch(char const* x){
+        puts(x);
     }
 
 

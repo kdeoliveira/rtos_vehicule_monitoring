@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
     getlogin_r(whoami, sizeof(char*)*20);
     
     char * filename = new char[70];
-    sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
+    sprintf(filename, "/home/qnxuser/data/dataset.csv", whoami);
 
     
 

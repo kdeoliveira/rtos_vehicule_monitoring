@@ -203,13 +203,14 @@ int main(int argc, char *argv[])
     char whoami[20];
     getlogin_r(whoami, sizeof(char*)*20);
     
-    char * filename = new char[70];
-    sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
+    char filename[31] = "/home/qnxuser/data/dataset.csv";
 
     rtos::InputFile input_file(filename);
 
     if(argc != 3) exit(EXIT_FAILURE);
-    int arg_fd[2] = {input_file.get_fd(), atoi(argv[2])};
+    int temp;
+    sscanf(argv[2], "%d", &temp);
+    int arg_fd[2] = {input_file.get_fd(), temp};
 
 
     // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>> m_buffer_input(54);
@@ -232,7 +233,7 @@ int main(int argc, char *argv[])
 
 
         auto *algo = new ProducerSchedulerAlgo{1};
-        rtos::Scheduler sched{SIGUSR1, algo};
+        rtos::Scheduler<period_task> sched{SIGUSR1, algo};
 
         period_task p_task[1];
         // p_task[0].period = (uint8_t) 2;
@@ -258,6 +259,9 @@ int main(int argc, char *argv[])
     }
     catch(std::exception &e ){
         puts(e.what());
+    }
+    catch(char const* x){
+        puts(x);
     }
     puts("End of schedulng");
     return EXIT_SUCCESS;

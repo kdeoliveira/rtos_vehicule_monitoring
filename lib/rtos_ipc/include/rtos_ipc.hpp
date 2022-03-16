@@ -1,6 +1,7 @@
 #pragma once
 
 #include <signal.h>
+#include <stdio.h>
 
 namespace rtos{
 
