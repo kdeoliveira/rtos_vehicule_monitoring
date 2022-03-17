@@ -79,7 +79,7 @@ class RunnableInputFile
 {
 public:
     RunnableInputFile(const RunnableInputFile &) = delete;
-    RunnableInputFile(std::deque<T> &arg) : in{arg}, input{"/home/qnxuser/data/dataset.csv"}
+    RunnableInputFile(std::deque<T> &arg) : in{arg}, input{DATASET_PATH}
     {
     }
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
     // thread_1.join();
     // thread_2.join();
 
-    rtos::InputFile input_file("/home/qnxuser/data/dataset.csv");
+    rtos::InputFile input_file(DATASET_PATH);
 
     char *line = new char[35];
 

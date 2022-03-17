@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
     char whoami[20];
     getlogin_r(whoami, sizeof(char*)*20);
     
-    char filename[31] = "/home/qnxuser/data/dataset.csv";
+    char filename[1024] = DATASET_PATH;
 
     rtos::InputFile input_file(filename);
 

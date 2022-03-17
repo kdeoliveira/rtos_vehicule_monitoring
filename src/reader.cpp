@@ -22,8 +22,7 @@ int main(int argc, char * argv[]){
     char whoami[20];
     getlogin_r(whoami, sizeof(char*)*20);
     
-    char * filename = new char[70];
-    sprintf(filename, "/home/qnxuser/data/dataset.csv", whoami);
+    const char filename[PATH_MAX] = DATASET_PATH;
 
     
     puts("starting app ...");

@@ -9,10 +9,10 @@
 
 namespace rtos{
     struct timer_cycle{
-        unsigned char hyperperiod = 1;
-        unsigned char cycles = 0;
+        u_int8_t hyperperiod = 1;
+        u_int8_t cycles = 0;
 
-        timer_cycle(const unsigned char _hyperperiod) : hyperperiod{_hyperperiod}{
+        timer_cycle(const u_int8_t _hyperperiod) : hyperperiod{_hyperperiod}{
         }
 
         timer_cycle& operator++(){
@@ -50,11 +50,15 @@ namespace rtos{
                 // if(signum > SIGRTMAX || signum < SIGRTMIN) throw "Signal is out of range";
                 m_sigevent = new struct sigevent;
                 
-                // this->m_sigevent->sigev_notify = SIGEV_THREAD_ID;
-                this->m_sigevent->sigev_notify = SIGEV_SIGNAL;
+                #ifndef _QNX_x86_64
+                    this->m_sigevent->sigev_notify = SIGEV_THREAD_ID;
+                    
+                    this->m_sigevent->_sigev_un._tid = gettid();
+                #else
+                    this->m_sigevent->sigev_notify = SIGEV_SIGNAL;
+                #endif
+
                 this->m_sigevent->sigev_signo = signum;
-                //sigev_notify_thread_id
-                // this->m_sigevent->_sigev_un._tid = gettid();
 
                 
                 this->m_timer_id = timer_create(clock_type, this->m_sigevent, &this->m_timer);
@@ -121,8 +125,8 @@ namespace rtos{
 
 
         public:
-            const static unsigned short int THOUSAND = 1000;
-            const static unsigned int MILLION = 1000000;
+            const static u_int16_t THOUSAND = 1000;
+            const static u_int32_t MILLION = 1000000;
         private:
             timer_t m_timer;
             int m_timer_id;
