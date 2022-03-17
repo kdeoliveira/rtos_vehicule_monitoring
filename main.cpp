@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
     puts("Application starting...");
 
+    
     int fd[2];
 
     pid_t pid = fork();
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
         getcwd(buf_temp, PATH_MAX + 1);
 
         puts(buf_temp);
-        
+
         std::string path = buf_temp;
          puts(buf_temp);
 

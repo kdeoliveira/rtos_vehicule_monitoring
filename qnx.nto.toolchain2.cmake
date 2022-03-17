@@ -80,4 +80,6 @@ set(CMAKE_AR $ENV{QNX_HOST}/usr/bin/nto${ntoarch}-ar
     CACHE PATH "QNX qr Program" FORCE)
 
 
+add_compile_definitions(_QNX_x86_64=true)
+
 
