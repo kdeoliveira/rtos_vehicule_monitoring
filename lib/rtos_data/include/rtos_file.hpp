@@ -29,9 +29,10 @@ namespace rtos
 
             this->buffer_stream = new char[BUFFER_SIZE];
 
-            setvbuf(
-                this->file_stream, this->buffer_stream, _IOLBF, sizeof(char) * BUFFER_SIZE
-            );
+            if(this->file_stream != NULL)
+                setvbuf(
+                    this->file_stream, this->buffer_stream, _IOLBF, sizeof(char) * BUFFER_SIZE
+                );
 
             this->fd = fileno(this->file_stream);
 

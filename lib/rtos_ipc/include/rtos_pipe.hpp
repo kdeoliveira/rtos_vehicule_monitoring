@@ -51,7 +51,8 @@ namespace rtos
                 this->fd[0] = _fd[0];
                 if(_flags == PipeFlag::REDIRECT){
                     this->fd_stream = fdopen(fd[0], "r");
-                    setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
+                    if(this->fd_stream != NULL)
+                        setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
                 }
             }
             else if (this->mode == PipeMode::WRITE)

@@ -3,6 +3,8 @@
 
 APP=build_qnx
 WHOAMI=root
+QNX_ADDRESS=192.168.187.128
+
 
 if [ -d "${APP}" ]
 then
@@ -13,6 +15,8 @@ cmake -B ${APP} -S . -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=
 
 cmake --build ${APP}
 
-sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@172.16.50.129:~/ 
+echo Sending data to remote address ${QNX_ADDRESS}
 
-sshpass -p "qnxuser" ssh ${WHOAMI}@172.16.50.129 "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"
+sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ 
+
+sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"
