@@ -5,6 +5,18 @@ APP=build_qnx
 WHOAMI=root
 QNX_ADDRESS=192.168.187.128
 
+if [ -z "${QNX_HOST}" ]
+then
+ echo Undefined QNX_HOST env variable
+ exit 1
+fi
+
+if [ $(ping QNX_ADDRESS -c 1 | awk 'NR==2 {print $6}') == "Unreachable" ]
+then
+ echo Unreacheable remote address $QNX_ADDRESS
+ exit 1
+fi
+
 
 if [ -d "${APP}" ]
 then
