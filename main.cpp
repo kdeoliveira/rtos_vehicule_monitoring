@@ -27,7 +27,7 @@ void signal_handler(int signum){
     for( unsigned long i{0} ; i < limit_fd.rlim_cur ; i++){
         int k = fcntl(i, F_GETFD);
         if(k != -1){
-            std::cout << "Closing opened file descriptors" << std::endl;
+            // std::cout << "Closing opened file descriptors" << std::endl;
             if( close(i) != 0){
                 perror("close");
             }
