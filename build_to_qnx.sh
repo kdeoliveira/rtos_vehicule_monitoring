@@ -1,21 +1,44 @@
 #!/bin/bash
 #!/snap/bin/expect
 
+
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Defining variables and building rtos files"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
 APP=build_qnx
 WHOAMI=root
-QNX_ADDRESS=192.168.187.128
+
+if [ -z "$1" ]
+then
+   QNX_ADDRESS=172.16.50.129
+else
+   QNX_ADDRESS="$1"
+fi
 
 if [ -z "${QNX_HOST}" ]
 then
- echo Undefined QNX_HOST env variable
- exit 1
+ echo "Undefined QNX_HOST env variable"
+ echo "Finding environment variable export file..."
+ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+   if [ -z $(find ~/opt/ -type f -name qnx*.sh) ]
+   then
+      echo "File not found and must be sourced manually"
+      exit 1
+   else
+      echo "Sourcing files..."
+      . $(find ~/opt/ -type f -name qnx*.sh)
+      echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      sleep 1
+   fi
 fi
 
-if [ $(ping QNX_ADDRESS -c 1 | awk 'NR==2 {print $6}') == "Unreachable" ]
+if [ "$(ping $QNX_ADDRESS -c 1 | awk 'NR==5 {print $4}')" != "1" ] 
 then
  echo Unreacheable remote address $QNX_ADDRESS
  exit 1
 fi
+
 
 
 if [ -d "${APP}" ]
@@ -29,6 +52,6 @@ cmake --build ${APP}
 
 echo Sending data to remote address ${QNX_ADDRESS}
 
-sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ 
+sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ >/dev/null 2>&1
 
-sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"
+# sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"

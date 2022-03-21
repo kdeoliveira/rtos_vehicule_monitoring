@@ -12,8 +12,36 @@
 #include <rtos_timer.hpp>
 #include <limits.h>
 
+#include <sys/resource.h>
+void signal_handler(int signum){
+
+    std::cout << "=======Checking opened file descriptors=======" << std::endl;
+
+    struct rlimit limit_fd;
+    
+    if (getrlimit(RLIMIT_NOFILE, &limit_fd) != 0){
+        perror("getrlimit");
+        exit(EXIT_FAILURE);
+    }
+
+    for( unsigned long i{0} ; i < limit_fd.rlim_cur ; i++){
+        int k = fcntl(i, F_GETFD);
+        if(k != -1){
+            std::cout << "Closing opened file descriptors" << std::endl;
+            if( close(i) != 0){
+                perror("close");
+            }
+        }
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[])
 {
+    //Gracefully closing all opened fds if SIGINT signal event occurs
+    signal(SIGINT, signal_handler);
+
     rtos::util::mask_signal(SIGUSR1);
     rtos::util::mask_signal(SIGUSR2);
     // rtos::util::mask_signal(SIGALRM);
