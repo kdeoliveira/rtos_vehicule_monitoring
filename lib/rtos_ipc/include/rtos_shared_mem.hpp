@@ -61,6 +61,6 @@ namespace rtos
         int m_fd;
         const char *m_name;
 
-        sem_t *m_semaphore;
+        // sem_t *m_semaphore;
     };
 }

@@ -13,9 +13,20 @@
 #include <limits.h>
 
 #include <sys/resource.h>
+#include <sys/mman.h>
+
+#include <semaphore.h>
+
 void signal_handler(int signum){
 
-    std::cout << "=======Checking opened file descriptors=======" << std::endl;
+    std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
+
+    sem_unlink("sem_modification");
+    sem_unlink("sem_access");
+    shm_unlink("m_buffer_input");
+
+
+    
 
     struct rlimit limit_fd;
     
@@ -74,10 +85,8 @@ int main(int argc, char *argv[])
 
         getcwd(buf_temp, PATH_MAX + 1);
 
-        puts(buf_temp);
 
         std::string path = buf_temp;
-         puts(buf_temp);
 
 
         pid_t child_pid = fork();
@@ -104,7 +113,6 @@ int main(int argc, char *argv[])
             char buf_temp[PATH_MAX + 1];
 
             getcwd(buf_temp, PATH_MAX + 1);
-            puts(buf_temp);
 
             std::string path = buf_temp;
             path += "/src/scheduling";

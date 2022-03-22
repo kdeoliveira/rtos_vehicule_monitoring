@@ -101,6 +101,9 @@ class Producer : public rtos::Task<char *>{
     // m_input_buffer->buffer = new _type[];
     m_input_buffer->status = 10;
 
+    // m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+    // m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 2);
+
 
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
@@ -112,11 +115,17 @@ class Producer : public rtos::Task<char *>{
 
         res = strtok(arg, ",");
 
+
+        // if( sem_wait(m_input_buffer->semaphore_access) == -1) perror("sem_wait");
+
+
         if(m_arg_row > 0){
             m_packet = SensorsHeader(m_arg_col);
             m_packet << (float) atof(res);
 
             // std::memcpy(this->m_input_buffer->buffer.begin(), (const void *)m_packet.get(), sizeof(m_packet));
+
+
 
             std::strcpy(this->m_input_buffer->temp_buffer, res);
 
@@ -140,9 +149,20 @@ class Producer : public rtos::Task<char *>{
         }
 
         m_input_buffer->status = m_input_buffer->status  + 1;
+        
+        // if( sem_post(m_input_buffer->semaphore_modification) == -1 ) perror("sem_post");
+
+        puts("================");
+        std::cout << "Row pushed from producer: " << m_arg_row << std::endl;
+        puts("================");
         m_arg_row++;
 
     });
+    }
+
+    ~Producer(){
+        sem_close(m_input_buffer->semaphore_access);
+        sem_close(m_input_buffer->semaphore_modification);
     }
     void run() override{
             std::cout << "Pushing to queue" << std::endl;
@@ -233,7 +253,7 @@ int main(int argc, char *argv[])
 
 
         auto *algo = new ProducerSchedulerAlgo{1};
-        rtos::Scheduler<period_task> sched{SIGUSR1, algo};
+        rtos::Scheduler<period_task> sched{SIGUSR1, algo, 5};
 
         period_task p_task[1];
         // p_task[0].period = (uint8_t) 2;

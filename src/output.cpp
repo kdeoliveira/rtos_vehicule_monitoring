@@ -29,15 +29,17 @@ public:
 
             for (int i{0}; i < this->size(); i++)
             {
-                printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                 if (_timer_cycle->cycles == this->m_queue[i].period)
                 {
+
+                    printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                     printf("[consumer] ptask id: %lu\n", this->m_queue[i].thread_id);
                     pthread_kill(this->m_queue[i].thread_id, _sig);
 
-                    return nullptr;
+                    
                 }
             }
+            
         
 
         return nullptr;
@@ -50,16 +52,10 @@ class FuelConsumption : public rtos::Task<char *>{
         FuelConsumption(const char* shared_name) : m_input_buffer{shared_name}{}
         void run() override{
 
-
-            for(auto& x : m_input_buffer->buffer){
-                std::cout << x;
-            }
-            std::cout <<std::endl;            
+            std::cout << this->m_input_buffer->buffer[SensorsHeader::Fuel_consumption].header.id << ": " << this->m_input_buffer->buffer->payload << std::endl;
         }
 
         ~FuelConsumption(){
-            // delete m_packet_data;
-            // delete m_packet_header;
         }
 
     private:
@@ -67,6 +63,49 @@ class FuelConsumption : public rtos::Task<char *>{
         // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
         rtos::SharedMem<buffer_packets> m_input_buffer;
         
+};
+
+
+class SensorDataTask : public rtos::Task<char *>{
+    public:
+        SensorDataTask(const char* shared_name, u_int8_t header) : m_input_buffer{shared_name}, m_header{new SensorsHeader{header} }{
+            m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+            // m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 2);
+        }
+
+
+        ~SensorDataTask(){
+
+            sem_close(m_input_buffer->semaphore_access);
+            sem_close(m_input_buffer->semaphore_modification);
+            delete m_header;
+        }
+
+        void run() override{
+
+            
+
+            
+            if( sem_wait(m_input_buffer->semaphore_access) == -1 ){
+                perror("sem_wait");
+            }
+
+            // if( sem_wait(m_input_buffer->semaphore_modification) == -1 ) perror("sem_wait");
+            
+            std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
+
+
+            if( sem_post(m_input_buffer->semaphore_access) == -1 ){
+                perror("sem_post");
+            }
+
+
+        }
+
+
+    private:
+        rtos::SharedMem<buffer_packet> m_input_buffer;
+        SensorsHeader* m_header;
 };
 
 class MainThread : public rtos::Thread<char*>{
@@ -84,26 +123,40 @@ int main(int argc, char *argv[])
     try{
         puts("Starting consumer task");
 
-        rtos::Task<char *>* consumer = new FuelConsumption("m_buffer_input");
+        rtos::Task<char *>* consumer[12];
+        std::unique_ptr<MainThread> thread_consumer[12];
+        
+        for(u_int8_t i{0}; i < 12U ; i++){
+            consumer[i] = new SensorDataTask("m_buffer_input", i);
+            thread_consumer[i] = std::make_unique<MainThread>((int)i, consumer[i]);
+        }
 
-        std::unique_ptr<MainThread> thread_consumer  = std::make_unique<MainThread>(5, consumer);
+        
 
+        
+        for(u_int8_t i{0}; i < 12U ; i++){
+            thread_consumer[i]->start();
+        }
 
-        thread_consumer->start();
+        auto *algo = new ConsumerSchedulerAlgo{2};
 
-        auto *algo = new ConsumerSchedulerAlgo{1};
+        rtos::Scheduler<period_task> sched_consumer{SIGUSR1, algo, 5};
 
-        rtos::Scheduler<period_task> sched_consumer{SIGUSR1, algo};
+        period_task c_task[2];
+        c_task[0].period = (uint8_t)0;
+        c_task[0].thread_id = thread_consumer[0]->get_thread_id();
 
-        period_task c_task[1];
-        c_task[0].period = (uint8_t)3;
-        c_task[0].thread_id = thread_consumer->get_thread_id();
+        c_task[1].period = (uint8_t)0;
+        c_task[1].thread_id = thread_consumer[1]->get_thread_id();
 
-        algo->push(c_task[0]);
+        algo->push(c_task[0], c_task[1]);
 
         sched_consumer.dispatch(SIGUSR2);
 
-        thread_consumer->join();
+
+        for(u_int8_t i{0}; i < 12U ; i++){
+            thread_consumer[i]->join();
+        }
 
     }
     catch(std::exception& e){

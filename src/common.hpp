@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-
+#include <ostream>
 
 struct period_task
 {
@@ -13,6 +13,7 @@ struct period_task
 
 
 enum SensorsHeader : u_int8_t{
+    
     Fuel_consumption,
     Accelerator_Pedal_value,
     Throttle_position_signal,
@@ -25,7 +26,40 @@ enum SensorsHeader : u_int8_t{
     Engine_in_fuel_cut_off,
     Fuel_Pressure,
     Long_Term_Fuel_Trim_Bank1
+
 };
+
+
+
+std::ostream& operator << (std::ostream& os, const SensorsHeader& data){
+    switch(data){
+        case SensorsHeader::Fuel_consumption:
+            return os << "Fuel Consumption";
+        case SensorsHeader::Accelerator_Pedal_value:
+            return os << "Accelerator Pedal Value";
+        case SensorsHeader::Throttle_position_signal:
+            return os << "Throttle Position Signal";
+        case SensorsHeader::Intake_air_pressure:
+            return os << "Intake Air Pressure";
+        case SensorsHeader::Filtered_Accelerator_Pedal_value:
+            return os << "Filtered Accelerator Pedal";
+        case SensorsHeader::Absolute_throttle_position:
+           return  os << "Absolute Throttle Position";
+        case SensorsHeader::Engine_soacking_time:
+           return  os << "Engine Soacking Time";
+        case SensorsHeader::Inhibition_of_engine_fuel_cut_off:
+            return os << "Inhibition of Engine Fuel Cut-Off";
+        case SensorsHeader::Engine_in_fuel_cut_off:
+            return os << "Engine in Fuel Cut-Off";
+        case SensorsHeader::Fuel_Pressure:
+            return os << "Fuel Pressure";
+        case SensorsHeader::Long_Term_Fuel_Trim_Bank1:
+            return os << "Long Term Fuel Trim Bank";
+        default:
+            return os << "Unknwon";
+
+    }
+}
 
 std::map<std::string, SensorsHeader> map_sensors {
     {"Fuel_consumption", SensorsHeader::Fuel_consumption},
@@ -94,14 +128,15 @@ struct or_type{
 
 #include <rtos_packet.hpp>
 #include <rtos_buffer.hpp>
-
+#include <semaphore.h>
 
 
  struct buffer_packet{
     char temp_buffer[30];
     int status;
     rtos::packet_data<SensorsHeader, SensorValue> buffer[54];
-    // sem_t* semaphore;
+    sem_t* semaphore_access;
+    sem_t* semaphore_modification;
  };
 
  typedef struct buffer_packet buffer_packets;
