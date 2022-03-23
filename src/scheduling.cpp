@@ -65,14 +65,19 @@ public:
         //     printf("Current time spend: %f\n",  (double)(current - start));
         // }
 
-
-        printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
+        #ifdef DEBUG
+            printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
+        #endif
 
             //kill thread by period value provided
             for(int i{0}; i < this->size() ; i++){
-                printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                 if(_timer_cycle->cycles == this->m_queue[i].period){
-                    printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
+
+                    #ifdef DEBUG
+                        printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
+                        printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
+                    #endif
+
                     pthread_kill(this->m_queue[i].thread_id, _signmum);
 
                     return nullptr;
@@ -152,9 +157,7 @@ class Producer : public rtos::Task<char *>{
         
         // if( sem_post(m_input_buffer->semaphore_modification) == -1 ) perror("sem_post");
 
-        puts("================");
-        std::cout << "Row pushed from producer: " << m_arg_row << std::endl;
-        puts("================");
+        std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
         m_arg_row++;
 
     });
@@ -165,8 +168,6 @@ class Producer : public rtos::Task<char *>{
         sem_close(m_input_buffer->semaphore_modification);
     }
     void run() override{
-            std::cout << "Pushing to queue" << std::endl;
-
             if(pipe.read_pipe<char*>() < 0){
                 pthread_cancel(gettid());
             }

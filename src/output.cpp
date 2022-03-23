@@ -4,6 +4,7 @@
 #include <rtos_shared_mem.hpp>
 #include "common.hpp"
 
+
 class ConsumerSchedulerAlgo : public rtos::algorithm<period_task>
 {
 public:
@@ -24,16 +25,18 @@ public:
 
     void *run(rtos::timer_cycle *_timer_cycle, const int &_sig) const override
     {
-        printf("[consumer] Cycle: %u\n", _timer_cycle->cycles);
-        
+        #ifdef DEBUG
+            printf("[consumer] Cycle: %u\n", _timer_cycle->cycles);
+        #endif
 
             for (int i{0}; i < this->size(); i++)
             {
                 if (_timer_cycle->cycles == this->m_queue[i].period)
                 {
-
-                    printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
-                    printf("[consumer] ptask id: %lu\n", this->m_queue[i].thread_id);
+                    #ifdef DEBUG
+                        printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
+                        printf("[consumer] ptask id: %lu\n", this->m_queue[i].thread_id);
+                    #endif
                     pthread_kill(this->m_queue[i].thread_id, _sig);
 
                     
@@ -68,7 +71,7 @@ class FuelConsumption : public rtos::Task<char *>{
 
 class SensorDataTask : public rtos::Task<char *>{
     public:
-        SensorDataTask(const char* shared_name, u_int8_t header) : m_input_buffer{shared_name}, m_header{new SensorsHeader{header} }{
+        SensorDataTask(const char* shared_name, u_int8_t header) : m_input_buffer{shared_name}, m_header{new SensorsHeader{(SensorsHeader)header} }{
             m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
             // m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 2);
         }
@@ -90,9 +93,8 @@ class SensorDataTask : public rtos::Task<char *>{
                 perror("sem_wait");
             }
 
-            // if( sem_wait(m_input_buffer->semaphore_modification) == -1 ) perror("sem_wait");
-            
-            std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
+            if(this->m_input_buffer->buffer[*m_header].header.size > 0)
+                std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
 
 
             if( sem_post(m_input_buffer->semaphore_access) == -1 ){
