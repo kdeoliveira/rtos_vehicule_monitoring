@@ -18,9 +18,12 @@ namespace rtos
         InputFile() = default;
         InputFile(const char *filename)
         {
-            this->file_stream = fopen(
-                filename, "rb+"
-            );
+            if (
+                ( this->file_stream = fopen(filename, "rb+") ) == NULL
+            ){
+                throw "Unable to open file";
+            }
+
 
             this->_line_index = 0;
             this->line_stream = new BYTE[BUFFER_SIZE];

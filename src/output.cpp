@@ -95,7 +95,11 @@ class SensorDataTask : public rtos::Task<char *>{
 
             if(this->m_input_buffer->buffer[*m_header].header.size > 0)
                 std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
-
+            
+                // for(auto& e : this->m_input_buffer->buffer){
+                //     std::cout << e;
+                // }
+                // std::cout << std::endl;
 
             if( sem_post(m_input_buffer->semaphore_access) == -1 ){
                 perror("sem_post");

@@ -141,9 +141,6 @@ struct or_type{
 
  typedef struct buffer_packet buffer_packets;
 
-
-
-
 #include <chrono>
 
 using namespace std::chrono;

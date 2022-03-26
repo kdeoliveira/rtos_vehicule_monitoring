@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
 
             const char *arg_pid = std::to_string(getpid()).c_str();
-            path += "/src/output";
+            path += "/gui/qnx/debug/gui";
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {

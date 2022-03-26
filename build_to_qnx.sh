@@ -21,13 +21,16 @@ then
  echo "Undefined QNX_HOST env variable"
  echo "Finding environment variable export file..."
  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-   if [ -z $(find ~/opt/ -type f -name qnx*.sh) ]
+   if [ -z $(find ~/opt/qnx -type f -name qnx*.sh | wc -l) ]
    then
       echo "File not found and must be sourced manually"
       exit 1
+#   elif [ $(find ~/opt/qnx/qnx700 -type f -name qnx*.sh | wc -l) > 1 ]
+#   then
+      
    else
       echo "Sourcing files..."
-      . $(find ~/opt/ -type f -name qnx*.sh)
+      . $(find ~/opt/qnx/qnx700 -type f -name qnx*.sh)
       echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
       sleep 1
    fi
@@ -52,6 +55,6 @@ cmake --build ${APP}
 
 echo Sending data to remote address ${QNX_ADDRESS}
 
-sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ >/dev/null 2>&1
+sshpass -p "root" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ >/dev/null 2>&1
 
 # sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"
