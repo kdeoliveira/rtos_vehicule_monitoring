@@ -104,7 +104,9 @@ class Producer : public rtos::Task<char *>{
 
     // m_input_buffer->buffer = _type{54};
     // m_input_buffer->buffer = new _type[];
-    m_input_buffer->status = 10;
+    if(m_input_buffer->status != 1){
+        m_input_buffer->status = 1;
+    }
 
     // m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
     // m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 2);
@@ -153,7 +155,6 @@ class Producer : public rtos::Task<char *>{
             }
         }
 
-        m_input_buffer->status = m_input_buffer->status  + 1;
         
         // if( sem_post(m_input_buffer->semaphore_modification) == -1 ) perror("sem_post");
 

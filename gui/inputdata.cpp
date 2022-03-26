@@ -13,10 +13,21 @@ void InputData::init(const char* name){
     m_thread = new Reader(name, this);
 
     connect(m_thread, &Reader::bufferRead, this, &InputData::readPipe);
+    connect(m_thread, &Reader::currentStatus, this, &InputData::getStatus);
 }
 
 
-void InputData::readPipe(const float& input){
+void InputData::readPipe(const float& speed, const float& rpm, const int& engine, const float& fuel, const int& gear){
+    setSpeed(speed);
+    setRpm(rpm);
+    setEngineCoolant(engine);
+    setFuel_consumption(fuel);
+    setGear(gear);
 
-    setSpeed(input);
+}
+
+void InputData::getStatus(const bool & status)
+{
+
+    setBufferStatus(status);
 }

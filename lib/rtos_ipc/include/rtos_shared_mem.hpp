@@ -51,7 +51,7 @@ namespace rtos
             return m_object;
         }
 
-        const int get_fd(){
+        int get_fd() const{
             return this->m_fd;
         }
 

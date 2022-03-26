@@ -55,6 +55,8 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Extras 1.4
 import qnx.rtos 1.0
+import Qt.labs.calendar 1.0
+import QtGraphicalEffects 1.0
 
 Window {
     id: root
@@ -63,6 +65,7 @@ Window {
     height: 600
 
     color: "#161616"
+
     title: "RTOS Vehicule Monitoring"
 
     ValueSource {
@@ -97,8 +100,9 @@ Window {
             }
 
             Item {
+                id: element1
                 width: height
-                height: container.height * 0.25 - gaugeRow.spacing
+                height: 140
                 anchors.verticalCenter: parent.verticalCenter
 
                 CircularGauge {
@@ -126,7 +130,9 @@ Window {
                 }
 
                 CircularGauge {
-                    value: valueSource.temperature
+                    id: tempGauge
+                    property int maxEngineCoolantTemperature: 225 //In Fahrenheit
+                    value: inputSource.engine_coolant / maxEngineCoolantTemperature
                     maximumValue: 1
                     width: parent.width
                     height: parent.height * 0.7
@@ -146,6 +152,35 @@ Window {
                             text: styleData.value === 0 ? "C" : (styleData.value === 1 ? "H" : "")
                         }
                     }
+                }
+
+                Text {
+                    id: fuel_consumtpion
+                    x: 105
+                    y: 122
+                    color: "#ffffff"
+                    text: inputSource.fuel_consumption.toFixed(2)
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: -20
+                    anchors.right: parent.right
+                    anchors.rightMargin: 0
+                    font.family: "DejaVu Sans"
+                    styleColor: "#f7f7f7"
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: 12
+                }
+
+                Label {
+                    id: label_fuel_consumtpion
+                    y: 122
+                    color: "#ffffff"
+                    text: "Fuel Consumption:"
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: -20
+                    anchors.left: parent.left
+                    anchors.leftMargin: -30
+                    font.pointSize: 8
+                    font.family: "DejaVu Sans"
                 }
             }
 
@@ -171,11 +206,13 @@ Window {
                 id: tachometer
                 width: height
                 height: container.height * 0.25 - gaugeRow.spacing
-                value: valueSource.rpm
+                value: inputSource.rpm / 1000
                 maximumValue: 8
                 anchors.verticalCenter: parent.verticalCenter
 
-                style: TachometerStyle {}
+                style: TachometerStyle {
+                    gearValue: inputSource.gear
+                }
             }
 
             TurnIndicator {
@@ -188,5 +225,40 @@ Window {
                 on: valueSource.turnSignal == Qt.RightArrow
             }
         }
+
+        Row {
+            id: statusRow
+            x: 186
+            width: 125
+            height: 50
+
+            layoutDirection: Qt.LeftToRight
+            spacing: 5
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                id: element
+                color: "#ffffff"
+                text: qsTr("Sensors Status:")
+                anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignLeft
+                font.pixelSize: 12
+            }
+            StatusIndicator {
+                id: statusIndicator
+                color: "#056136"
+                anchors.verticalCenter: parent.verticalCenter
+                active: inputSource.bufferStatus
+            }
+        }
     }
 }
+
+/*##^##
+Designer {
+    D{i:13;anchors_y:122}D{i:14;anchors_x:"-38"}
+}
+##^##*/
+

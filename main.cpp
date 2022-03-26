@@ -95,7 +95,12 @@ int main(int argc, char *argv[])
 
 
             const char *arg_pid = std::to_string(getpid()).c_str();
-            path += "/gui/qnx/debug/gui";
+            #ifdef _QNX_x86_64
+                path += "/gui/qnx/debug/gui";
+            #else
+                path += "/gui/x64/debug/gui";
+            #endif
+
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
@@ -135,7 +140,7 @@ int main(int argc, char *argv[])
         
         rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
 
-        if (m_timer.start(2, 0) < 0)
+        if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){

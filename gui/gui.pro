@@ -27,10 +27,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 unix:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
 
-#-lrt -lpthread
+#unix:!macx: LIBS += -L$$PWD/../build/lib/rtos_common/ -lrtos_common -lrt
 
 INCLUDEPATH += $$PWD/../lib/rtos_common/include
+
 DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
+#DEPENDPATH += $$PWD/../build/lib/rtos_common
 
 INCLUDEPATH += $$PWD/../lib/rtos_ipc/include
 INCLUDEPATH += $$PWD/../lib/rtos_data/include
