@@ -69,10 +69,15 @@ public:
             printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
         #endif
 
+            
+        
+
             //kill thread by period value provided
             for(int i{0}; i < this->size() ; i++){
-                if(_timer_cycle->cycles == this->m_queue[i].period){
-
+            
+                
+                if(this->m_queue[i].period % (_timer_cycle->cycles + 1) == 0){
+                    
                     #ifdef DEBUG
                         printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                         printf("[producer] ptask id: %lu\n", this->m_queue[i].thread_id);
@@ -165,6 +170,7 @@ class Producer : public rtos::Task<char *>{
     }
 
     ~Producer(){
+        m_input_buffer->status = 0;
         sem_close(m_input_buffer->semaphore_access);
         sem_close(m_input_buffer->semaphore_modification);
     }

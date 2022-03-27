@@ -16,6 +16,7 @@ namespace rtos{
             Scheduler(int signmum, std::shared_ptr<algorithm<T>> _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}{
                 if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm = _algorithm;
+                //Equiavelent to a Hyperperiod
                 this->m_cycles(number_of_cycles);
             }
 

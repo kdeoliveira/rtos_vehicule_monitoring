@@ -25,14 +25,21 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-unix:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
+qnx: {
+    unix:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
+    DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
+}
+unix:!android: {
+    unix:!macx: LIBS += -L$$PWD/../build/lib/rtos_common/ -lrtos_common -lrt
+    DEPENDPATH += $$PWD/../build/lib/rtos_common
+}
 
-#unix:!macx: LIBS += -L$$PWD/../build/lib/rtos_common/ -lrtos_common -lrt
+
 
 INCLUDEPATH += $$PWD/../lib/rtos_common/include
 
-DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
-#DEPENDPATH += $$PWD/../build/lib/rtos_common
+
+
 
 INCLUDEPATH += $$PWD/../lib/rtos_ipc/include
 INCLUDEPATH += $$PWD/../lib/rtos_data/include

@@ -51,9 +51,9 @@
 ****************************************************************************/
 import QtQuick 2.2
 import QtQuick.Window 2.1
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
 import QtQuick.Extras 1.4
+import QtQuick.Controls 2.4
+import QtQuick.Controls.Styles 1.4
 import qnx.rtos 1.0
 import Qt.labs.calendar 1.0
 import QtGraphicalEffects 1.0
@@ -82,6 +82,7 @@ Window {
         id: container
         width: root.width
         height: Math.min(root.width, root.height)
+        clip: true
         anchors.centerIn: parent
 
         Row {
@@ -229,28 +230,55 @@ Window {
         Row {
             id: statusRow
             x: 186
-            width: 125
+            width: 250
             height: 50
 
             layoutDirection: Qt.LeftToRight
-            spacing: 5
+            spacing: 10
             anchors.top: parent.top
             anchors.topMargin: 20
             anchors.horizontalCenter: parent.horizontalCenter
 
-            Text {
+            Label {
                 id: element
                 color: "#ffffff"
                 text: qsTr("Sensors Status:")
                 anchors.verticalCenter: parent.verticalCenter
                 horizontalAlignment: Text.AlignLeft
-                font.pixelSize: 12
+                font.pixelSize: 10
             }
             StatusIndicator {
                 id: statusIndicator
+                width: 20
+                height: 20
                 color: "#056136"
                 anchors.verticalCenter: parent.verticalCenter
                 active: inputSource.bufferStatus
+            }
+
+            Label {
+                id: labelCycles
+                height: 12
+                color: "#ffffff"
+                text: "Cycle:"
+                anchors.verticalCenter: parent.verticalCenter
+                font.pixelSize: 10
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Tumbler {
+                id: tumbler
+                height: 100
+                wrap: false
+                font.pixelSize: 12
+
+                enabled: false
+                hoverEnabled: false
+                wheelEnabled: false
+                clip: false
+                anchors.verticalCenter: parent.verticalCenter
+                model: 8
+                currentIndex: inputSource.gear
             }
         }
     }
