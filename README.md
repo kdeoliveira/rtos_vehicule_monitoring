@@ -1,6 +1,6 @@
 <p align="center"> 
   <img src="https://www.qnx.com/style-v2/img/bb-qnx-logo.png" alt="qnx"/>
-  <img src="https://www.qt.io/hubfs/qt-design-system/assets/logos/qt-logo.svg" alt="qt">
+  <img src="https://www.qt.io/hubfs/qt-design-system/assets/logos/qt-logo.svg" width="100" alt="qt">
 </p>
 
 
