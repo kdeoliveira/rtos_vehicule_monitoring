@@ -17,7 +17,7 @@ real-time system for monitoring of vehicle’s health conditions.
 - Note that in order to built the GUI using GCC, the proper qmake tool needs to be generated from the Qt source files.
 
 ### Build
-This application must be built from a Linux x86_64 system
+This application must be built from a Linux x86_64 system  
 To compile either run the shell script:  
 ``sh built_to_qnx.sh $IP_ADDR_REMOTE``  
 
