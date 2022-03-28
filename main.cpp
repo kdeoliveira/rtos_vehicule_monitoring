@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             getcwd(buf_temp, PATH_MAX + 1);
 
             std::string path = buf_temp;
-            path += "/src/scheduling";
+            path += "/src/producer";
 
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)

@@ -2,10 +2,10 @@
 
 add_executable(writer writer.cpp)
 add_executable(reader reader.cpp)
+add_executable(test_producer test_producer.cpp)
 add_executable(producer producer.cpp)
-add_executable(scheduling scheduling.cpp)
 
-add_executable(output output.cpp)
+add_executable(consumer consumer.cpp)
 
 
 # add_executable(scheduling_backup scheduling_backup.cpp)
@@ -21,11 +21,11 @@ add_executable(output output.cpp)
 
 
 target_link_libraries(
-    output rtos_data
+    consumer rtos_data
 )
 
 target_link_libraries(
-    output rtos_ipc
+    consumer rtos_ipc
 )
 
 
@@ -57,18 +57,18 @@ target_link_libraries(
 )
 
 target_link_libraries(
+    test_producer rtos_ipc
+)
+
+target_link_libraries(
+    test_producer rtos_data
+)
+
+target_link_libraries(
     producer rtos_ipc
 )
 
 target_link_libraries(
     producer rtos_data
-)
-
-target_link_libraries(
-    scheduling rtos_ipc
-)
-
-target_link_libraries(
-    scheduling rtos_data
 )
 
