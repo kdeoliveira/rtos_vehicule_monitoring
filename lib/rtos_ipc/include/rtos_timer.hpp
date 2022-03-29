@@ -48,12 +48,17 @@ namespace rtos{
                 this->callback = nullptr;
 
                 // if(signum > SIGRTMAX || signum < SIGRTMIN) throw "Signal is out of range";
-                m_sigevent = new sigevent_t;
+                m_sigevent = new struct sigevent;
                 
-                this->m_sigevent->sigev_notify = SIGEV_THREAD_ID;
+                #ifndef _QNX_x86_64
+                    this->m_sigevent->sigev_notify = SIGEV_THREAD_ID;
+                    
+                    this->m_sigevent->_sigev_un._tid = gettid();
+                #else
+                    this->m_sigevent->sigev_notify = SIGEV_SIGNAL;
+                #endif
+
                 this->m_sigevent->sigev_signo = signum;
-                //sigev_notify_thread_id
-                this->m_sigevent->_sigev_un._tid = gettid();
 
                 
                 this->m_timer_id = timer_create(clock_type, this->m_sigevent, &this->m_timer);
@@ -125,10 +130,10 @@ namespace rtos{
         private:
             timer_t m_timer;
             int m_timer_id;
-            sigevent_t* m_sigevent;
+            struct sigevent* m_sigevent;
             Callback* callback;
-            // u_int8_t m_hyperperiod;
-            // u_int8_t m_cycles;
+            // unsigned char m_hyperperiod;
+            // unsigned char m_cycles;
 
     };
 }

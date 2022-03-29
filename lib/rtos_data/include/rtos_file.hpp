@@ -18,9 +18,12 @@ namespace rtos
         InputFile() = default;
         InputFile(const char *filename)
         {
-            this->file_stream = fopen(
-                filename, "rb+"
-            );
+            if (
+                ( this->file_stream = fopen(filename, "rb+") ) == NULL
+            ){
+                throw "Unable to open file";
+            }
+
 
             this->_line_index = 0;
             this->line_stream = new BYTE[BUFFER_SIZE];
@@ -29,9 +32,10 @@ namespace rtos
 
             this->buffer_stream = new char[BUFFER_SIZE];
 
-            setvbuf(
-                this->file_stream, this->buffer_stream, _IOLBF, sizeof(char) * BUFFER_SIZE
-            );
+            if(this->file_stream != NULL)
+                setvbuf(
+                    this->file_stream, this->buffer_stream, _IOLBF, sizeof(char) * BUFFER_SIZE
+                );
 
             this->fd = fileno(this->file_stream);
 
@@ -90,11 +94,11 @@ namespace rtos
         //     return this->values.get();
         // }
 
-        constexpr int line_index() const{
+        const int line_index() const{
             return this->_line_index;
         }
 
-        constexpr size_t get_file_size() const{
+        const size_t get_file_size() const{
             return this->file_size;
         }
 

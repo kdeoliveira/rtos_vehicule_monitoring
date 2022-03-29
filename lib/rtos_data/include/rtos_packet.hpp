@@ -37,7 +37,8 @@ namespace rtos{
         packet_data<T, R>& operator = (const X& arg){
             static_assert(std::is_same<X, T>::value, "Incorrect template");
             std::memcpy(&header.id, &arg, sizeof(X));
-            
+            header.size = sizeof(X);
+
             return *this;
         }
 

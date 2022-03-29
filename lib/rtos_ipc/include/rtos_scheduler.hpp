@@ -13,13 +13,14 @@ namespace rtos{
         public:
             Scheduler() = delete;
 
-            Scheduler(int signmum, std::shared_ptr<algorithm<T>> _algorithm) : m_signum{signmum}{
+            Scheduler(int signmum, std::shared_ptr<algorithm<T>> _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}{
                 if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm = _algorithm;
-                this->m_cycles(5);
+                //Equiavelent to a Hyperperiod
+                this->m_cycles(number_of_cycles);
             }
 
-            Scheduler(int signmum, algorithm<T>* _algorithm) : m_signum{signmum}, m_cycles(5){
+            Scheduler(int signmum, algorithm<T>* _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}, m_cycles(number_of_cycles){
                 // if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm.reset(_algorithm);
                 

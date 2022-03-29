@@ -14,17 +14,17 @@ namespace rtos{
             virtual ~thread_safe(){}
 
             void add(const T& item, const int i){
-                std::unique_lock ul(this->m_mx);
+                std::unique_lock<std::mutex> ul(this->m_mx);
                 this->__add(item, i);
             }
 
             T& operator[](int i){
-                std::unique_lock ul(this->m_mx);
+                std::unique_lock<std::mutex> ul(this->m_mx);
                 return this->__access(i);
             }
 
             T& pop(const int i){
-                std::unique_lock ul(this->m_mx);
+                std::unique_lock<std::mutex> ul(this->m_mx);
                 return this->__pop(i);
             }
 

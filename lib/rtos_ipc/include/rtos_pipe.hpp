@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
-#include <any>
 #include <vector>
 #include <fcntl.h>
 #include <rtos_common.hpp>
@@ -52,7 +51,8 @@ namespace rtos
                 this->fd[0] = _fd[0];
                 if(_flags == PipeFlag::REDIRECT){
                     this->fd_stream = fdopen(fd[0], "r");
-                    setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
+                    if(this->fd_stream != NULL)
+                        setvbuf(this->fd_stream, this->interal_buffer, _IOLBF, BUFFER_SIZE);
                 }
             }
             else if (this->mode == PipeMode::WRITE)
@@ -110,7 +110,7 @@ namespace rtos
                 if( read(fd[0], &buffer, sizeof(T) )  > 0 )
                     for(Callback& x : this->callbacks){
                             if(x(typeid(T))){
-                                x(buffer);
+                                x((void *)buffer);
                             }
                     }
                 // }
@@ -125,7 +125,7 @@ namespace rtos
                     for (Callback &x : this->callbacks)
                     {
                         if (x(typeid(T))){
-                            x(static_cast<T>(p));
+                            x((void *)static_cast<T>(p));
                         }
                     }
                 }else{

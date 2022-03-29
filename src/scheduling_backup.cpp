@@ -202,8 +202,7 @@ int main(int argc, char *argv[])
     char whoami[20];
     getlogin_r(whoami, sizeof(char*)*20);
     
-    char * filename = new char[70];
-    sprintf(filename, "/home/%s/dev/rtos_vehicule_monitoring/src/dataset.csv", whoami);
+    char filename[1024] = DATASET_PATH;
 
     
 

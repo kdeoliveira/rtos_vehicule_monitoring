@@ -51,7 +51,7 @@ namespace rtos
             return m_object;
         }
 
-        const int get_fd(){
+        int get_fd() const{
             return this->m_fd;
         }
 
@@ -61,6 +61,6 @@ namespace rtos
         int m_fd;
         const char *m_name;
 
-        sem_t *m_semaphore;
+        // sem_t *m_semaphore;
     };
 }

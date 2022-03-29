@@ -1,12 +1,11 @@
 #pragma once
 #include <type_traits>
-#include <any>
 #include <memory>
 #include "rtos_traits.hpp"
 #include <iostream>
 struct Base{
         virtual bool operator()(const std::type_info &type) const = 0;
-        virtual void operator()(const std::any &data) = 0;
+        virtual void operator()(void* data) = 0;
         virtual ~Base(){}
 };
 
@@ -21,8 +20,8 @@ struct Wrapper : public Base {
         return typeid(argument) == type;
     }
 
-    void operator()(const std::any& data) override{
-        wp(std::any_cast<argument>(data));
+    void operator()(void* data) override{
+        wp(static_cast<argument>(data));
     }
 };
 
@@ -41,7 +40,7 @@ struct Callback{
         return (*fn)(type);
     }
 
-    void operator()(const std::any &data){
+    void operator()(void* data){
         return (*fn)(data);
     }
 

@@ -79,7 +79,7 @@ class RunnableInputFile
 {
 public:
     RunnableInputFile(const RunnableInputFile &) = delete;
-    RunnableInputFile(std::deque<T> &arg) : in{arg}, input{"/home/kdeoliveira/dev/rtos_vehicule_monitoring/src/dataset.csv"}
+    RunnableInputFile(std::deque<T> &arg) : in{arg}, input{DATASET_PATH}
     {
     }
 
@@ -87,7 +87,7 @@ public:
     {
         while (true)
         {
-            std::unique_lock ul{this->mx};
+            std::unique_lock<std::mutex> ul{this->mx};
 
             in.push_back(input.read_line());
             input_size++;
@@ -154,6 +154,8 @@ int main(int argc, char *argv[])
 
     std::cout << packet_payload.size() << std::endl;
 
+    
+
     std::cout << atoi(argv[0]) << atoi(argv[1]) << atoi(argv[2]) << std::endl;
 
     // std::deque<rtos::packet_data<SensorsHeader, float>> output;
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
     // thread_1.join();
     // thread_2.join();
 
-    rtos::InputFile input_file("/home/kdeoliveira/dev/rtos_vehicule_monitoring/src/dataset.csv");
+    rtos::InputFile input_file(DATASET_PATH);
 
     char *line = new char[35];
 
@@ -196,7 +198,7 @@ int main(int argc, char *argv[])
     //     queue.push_back(msg);
     // }
 
-    _V2::system_clock::time_point start, stop;
+    // _V2::system_clock::time_point start, stop;
 
     if (argc != 3)
         exit(EXIT_FAILURE);
