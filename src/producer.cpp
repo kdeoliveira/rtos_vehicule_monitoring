@@ -78,7 +78,7 @@ public:
             for(int i{0}; i < this->size() ; i++){
             
                 
-                if(this->m_queue[i].period % (_timer_cycle->cycles + 1) == 0){
+                if((_timer_cycle->cycles + 1) % this->m_queue[i].period == 0){
                     
                     #ifdef DEBUG
                         printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
@@ -269,9 +269,7 @@ int main(int argc, char *argv[])
         // p_task[0].period = (uint8_t) 2;
         // p_task[0].thread_id = thread->get_thread_id();
 
-        //TODO:
-        //Period is based on value starting from 0. This should be corrected for proper calcualtion
-        p_task[0].period = (uint8_t) 0;
+        p_task[0].period = (uint8_t) 1;
         p_task[0].thread_id = thread1->get_thread_id();
 
         algo->push(p_task[0]);
