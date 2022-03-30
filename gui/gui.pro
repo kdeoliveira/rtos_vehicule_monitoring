@@ -29,7 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 qnx: {
-    unix:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
+    qnx:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
     DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
 }
 unix:!android: {
