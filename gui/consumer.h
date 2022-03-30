@@ -35,7 +35,7 @@ public:
 
             for (int i{0}; i < this->size(); i++)
             {
-                if(this->m_queue[i].period % (_timer_cycle->cycles + 1) == 0)
+                if((_timer_cycle->cycles + 1) % this->m_queue[i].period == 0)
                 {
                     #ifdef DEBUG
                         printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
@@ -121,7 +121,7 @@ class SensorDataTask : public rtos::Task<char *>{
 
 class MainThread : public rtos::Thread<char*>{
     public:
-        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{
+        MainThread(int id, rtos::Task<char *>* task) : rtos::Thread<char *>{task, false, SIGUSR2}, m_id{id}{
             this->start();
         }
 

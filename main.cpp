@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         });
 
 
-        m_timer.notify(0, nullptr);
+        m_timer.notify(nullptr);
 
         int status;
         if (waitpid(pid, &status, 0) > 0)

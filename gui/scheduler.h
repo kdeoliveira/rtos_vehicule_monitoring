@@ -39,9 +39,6 @@ public:
         sched_consumer = new rtos::Scheduler<period_task>(SIGUSR1, algo, 5);
 
         period_task c_task;
-
-        //TODO:
-        //Period is based on value starting from 0. This should be corrected for proper calcualtion
         c_task.period = (uint8_t)5;
         c_task.thread_id = thread_id;
 
