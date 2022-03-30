@@ -27,6 +27,8 @@
 class ProducerSchedulerAlgo : public rtos::algorithm<period_task>
 {
 public:
+    //TODO:
+    //Note that this size should be implemented internally as it may result on crash
     ProducerSchedulerAlgo(const int _sz) : rtos::algorithm<period_task>{_sz} {}
 
     template<typename T = period_task>
@@ -267,8 +269,9 @@ int main(int argc, char *argv[])
         // p_task[0].period = (uint8_t) 2;
         // p_task[0].thread_id = thread->get_thread_id();
 
-
-        p_task[0].period = (uint8_t) 1;
+        //TODO:
+        //Period is based on value starting from 0. This should be corrected for proper calcualtion
+        p_task[0].period = (uint8_t) 0;
         p_task[0].thread_id = thread1->get_thread_id();
 
         algo->push(p_task[0]);

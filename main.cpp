@@ -160,7 +160,8 @@ int main(int argc, char *argv[])
         
         rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
 
-        if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
+        // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
+        if (m_timer.start(1, 0) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){

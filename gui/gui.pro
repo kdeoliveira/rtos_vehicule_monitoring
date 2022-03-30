@@ -45,6 +45,9 @@ INCLUDEPATH += $$PWD/../lib/rtos_data/include
 
 
 HEADERS += \
+    consumer.h \
     inputdata.h \
-    reader.h
+    reader.h \
+    ../src/common.hpp \
+    scheduler.h
 

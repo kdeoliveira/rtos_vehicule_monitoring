@@ -61,13 +61,15 @@ namespace rtos{
                 while(true){
                     if(this->m_cycles.cycles < 0) return;
 
+
                     
                     
                     sigwaitinfo(&set, &info);
 
 
+
                     if(this->m_algorithm != nullptr){
-                        
+
                         this->m_algorithm->run(&this->m_cycles, _sig);
                     }
 

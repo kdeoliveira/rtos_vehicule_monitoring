@@ -10,10 +10,17 @@ InputData::InputData(QObject *parent) : QObject(parent)
 
 
 void InputData::init(const char* name){
-    m_thread = new Reader(name, this);
+    m_reader = new Reader(name, this);
+    m_thread = new MainThread(1, m_reader);
 
-    connect(m_thread, &Reader::bufferRead, this, &InputData::readPipe);
-    connect(m_thread, &Reader::currentStatus, this, &InputData::getStatus);
+
+
+    connect(m_reader, &Reader::bufferRead, this, &InputData::readPipe);
+    connect(m_reader, &Reader::currentStatus, this, &InputData::getStatus);
+
+
+
+
 }
 
 

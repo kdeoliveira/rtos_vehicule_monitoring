@@ -5,9 +5,12 @@
 
 #include "inputdata.h"
 
+#include <scheduler.h>
+
 int main(int argc, char *argv[])
 {
 
+    SchedulerThread* sched;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -23,9 +26,16 @@ int main(int argc, char *argv[])
 
     const QUrl url(QStringLiteral("qrc:/qml/dashboard.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
+                     &app, [&, url](QObject *obj, const QUrl &objUrl) {
+
         InputData *data = obj->findChild<InputData*>();
         data->init("m_buffer_input");
+        sched = new SchedulerThread {data->get_thread_id(), data};
+
+
+        sched->start();
+
+
 
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
@@ -34,6 +44,8 @@ int main(int argc, char *argv[])
 
 
     engine.load(url);
+
+
 
     return app.exec();
 }
