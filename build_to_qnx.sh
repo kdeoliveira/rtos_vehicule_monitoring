@@ -55,6 +55,6 @@ cmake --build ${APP}
 
 echo Sending data to remote address ${QNX_ADDRESS}
 
-sshpass -p "root" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:~/ >/dev/null 2>&1
+sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:/${WHOAMI}/ >/dev/null 2>&1
 
-# sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"
+sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/${WHOAMI}/${APP}/lib/rtos_common && cd ${APP} &&  ./rtos_vehicule_monitoring"

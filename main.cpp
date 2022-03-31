@@ -19,6 +19,9 @@
 
 #include <libgen.h>
 
+#include <string.h>
+
+
 void signal_handler(int signum){
 
     #ifdef DEBUG
@@ -72,13 +75,12 @@ int main(int argc, char *argv[])
 
     char res[PATH_MAX];
     ssize_t cnt = readlink("/proc/self/exe", res, PATH_MAX);
-    char *buf_temp;
+    char buf_temp[PATH_MAX];
     if(cnt != -1){
-        buf_temp = dirname(res);
+        strcpy(buf_temp, dirname(res));
     }else{
         getcwd(buf_temp, PATH_MAX + 1);
     }
-    // puts(pth);
 
     
     int fd[2];
