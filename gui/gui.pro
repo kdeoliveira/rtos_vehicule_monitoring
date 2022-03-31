@@ -1,6 +1,7 @@
 QT += quick
 CONFIG += qmltypes
-TARGET = gui
+
+
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -28,11 +29,16 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+
+
 qnx: {
+
+    DEFINES += _QNX_x86_64
     qnx:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
     DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
 }
-unix:!android: {
+unix:!qnx: {
+    TARGET = gui
     unix:!macx: LIBS += -L$$PWD/../build/lib/rtos_common/ -lrtos_common -lrt
     DEPENDPATH += $$PWD/../build/lib/rtos_common
 }
