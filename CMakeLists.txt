@@ -10,6 +10,7 @@ else()
     add_compile_definitions(DATASET_PATH="/home/dev/dev/rtos_vehicule_monitoring/data/dataset.csv")
 endif()
 
+
 if(CMAKE_BUILD_TYPE EQUAL Debug)
     add_compile_definitions(DEBUG)
 endif()

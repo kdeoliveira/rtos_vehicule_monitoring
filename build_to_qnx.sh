@@ -9,6 +9,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 APP=build_qnx
 WHOAMI=root
 BASEDIR=$(pwd)
+SSH_PSK="root"
 
 if [ -z "$1" ]
 then
@@ -68,10 +69,15 @@ QMAKE=/home/dev/opt/qt_for_qnx/bin/qmake
 
 if [ -z $(which $QMAKE) ]
 then
-   echo "No qmake defined"
-   exit 1
+   if [ -z $(which /home/dev/opt/qnx/qt_for_qnx/bin/qmake) ]
+   then
+      echo "No qmake defined"
+      exit 1
+   else
+      QMAKE=/home/dev/opt/qnx/qt_for_qnx/bin/qmake
+   fi
+   
 fi
-
 
 
 
@@ -92,13 +98,13 @@ cd $BASEDIR
 
 echo Sending data to remote address ${QNX_ADDRESS}
 
-sshpass -p "qnxuser" scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:/opt/apps/ 
+sshpass -p ${SSH_PSK} scp -r ${APP} ${WHOAMI}@${QNX_ADDRESS}:/opt/apps/ 
 
 # Optional: direct output stdout and stderr to null
 # >/dev/null 2>&1
 
 
 
-sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/apps/${APP}/lib/rtos_common && cd /opt/apps/${APP}"
+sshpass -p ${SSH_PSK} ssh ${WHOAMI}@${QNX_ADDRESS} "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/apps/${APP}/lib/rtos_common && cd /opt/apps/${APP}"
 
-sshpass -p "qnxuser" ssh ${WHOAMI}@${QNX_ADDRESS}  cd /opt/apps/$APP
+sshpass -p ${SSH_PSK} ssh ${WHOAMI}@${QNX_ADDRESS}  cd /opt/apps/$APP

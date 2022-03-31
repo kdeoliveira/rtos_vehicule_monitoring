@@ -71,8 +71,6 @@ namespace rtos{
 
 
             int start(int period_seconds, int period_nanoseconds){
-                itimerspec m_timerspec;
-
                 m_timerspec.it_value.tv_sec = period_seconds;
                 m_timerspec.it_interval.tv_sec = period_seconds;
                 m_timerspec.it_value.tv_nsec = period_nanoseconds;
@@ -128,11 +126,17 @@ namespace rtos{
         public:
             const static u_int16_t THOUSAND = 1000;
             const static u_int32_t MILLION = 1000000;
+
+            itimerspec get_timer_spec(){
+                return this->m_timerspec;
+            }
+            
         private:
             timer_t m_timer;
             int m_timer_id;
             struct sigevent* m_sigevent;
             Callback* callback;
+            itimerspec m_timerspec;
             // unsigned char m_hyperperiod;
             // unsigned char m_cycles;
 

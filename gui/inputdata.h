@@ -16,6 +16,7 @@ class InputData : public QObject
     Q_PROPERTY(float fuel_consumption READ fuel_consumption WRITE setFuel_consumption NOTIFY fuel_consumptionChanged)
     Q_PROPERTY(int gear READ gear WRITE setGear NOTIFY gearChanged)
     Q_PROPERTY(bool bufferStatus READ bufferStatus WRITE setBufferStatus NOTIFY bufferStatusChanged)
+    Q_PROPERTY(int dial READ dial WRITE setDial NOTIFY dialChanged)
 
 public:
     explicit InputData(QObject *parent = nullptr);
@@ -41,6 +42,9 @@ public:
     }
     bool bufferStatus(){
         return this->m_bufferStatus;
+    }
+    int dial(){
+        return this->m_dial;
     }
 
 
@@ -100,6 +104,26 @@ public:
         m_bufferStatus= status;
         emit bufferStatusChanged(status);
     }
+    void setDial(const int& dial){
+
+        if(this->m_dial== dial){
+            return;
+        }
+
+        int temp_sec = dial / 1000;
+        int temp_nsec = (dial % 1000) * rtos::Timer::MILLION;
+
+
+
+        m_shared_mem_timer->current_val_seconds = temp_sec;
+        m_shared_mem_timer->current_val_nanoseconds = temp_nsec;
+
+
+
+
+        m_dial = dial;
+        emit dialChanged(dial);
+    }
 signals:
     void speedChanged(float);
     void rpmChanged(float);
@@ -107,6 +131,7 @@ signals:
     void fuel_consumptionChanged(float);
     void gearChanged(int);
     void bufferStatusChanged(bool);
+    void dialChanged(int);
 
 
 
@@ -118,9 +143,12 @@ private:
     float m_fuel_consumtpion;
     int m_engine_coolant;
     int m_gear;
+    int m_dial;
     bool m_bufferStatus;
     MainThread* m_thread;
     Reader* m_reader;
+    rtos::SharedMem<buffer_clock> m_shared_mem_timer;
+
 
 public:
     pthread_t get_thread_id(){
