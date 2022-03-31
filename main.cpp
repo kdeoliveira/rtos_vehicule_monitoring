@@ -21,7 +21,9 @@
 
 void signal_handler(int signum){
 
-    std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
+    #ifdef DEBUG
+        std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
+    #endif
 
     sem_unlink("sem_modification");
     sem_unlink("sem_access");
@@ -114,10 +116,18 @@ int main(int argc, char *argv[])
 
 
             const char *arg_pid = std::to_string(getpid()).c_str();
-            #ifdef _QNX_x86_64
-                path += "/gui/qnx/debug/gui";
+            #ifdef DEBUG
+                #ifdef _QNX_x86_64
+                    path += "/gui/qnx/debug/gui";
+                #else
+                    path += "/gui/x64/debug/gui";
+                #endif
             #else
-                path += "/gui/x64/debug/gui";
+                #ifdef _QNX_x86_64
+                    path += "/gui/qnx/release/gui";
+                #else
+                    path += "/gui/x64/release/gui";
+                #endif
             #endif
 
             puts(path.c_str());

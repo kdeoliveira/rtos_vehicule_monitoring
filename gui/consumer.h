@@ -27,7 +27,6 @@ public:
 
     void *run(rtos::timer_cycle *_timer_cycle, const int &_sig) const override
     {
-           #define DEBUG
 
         #ifdef DEBUG
             printf("[consumer] Cycle: %u\n", _timer_cycle->cycles);

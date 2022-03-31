@@ -164,8 +164,9 @@ class Producer : public rtos::Task<char *>{
 
         
         // if( sem_post(m_input_buffer->semaphore_modification) == -1 ) perror("sem_post");
-
-        std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
+        #ifdef DEBUG
+            std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
+        #endif
         m_arg_row++;
 
     });
