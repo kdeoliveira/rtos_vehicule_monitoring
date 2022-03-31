@@ -1,6 +1,6 @@
 QT += quick
 CONFIG += qmltypes
-
+TARGET = gui
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -14,6 +14,9 @@ SOURCES += \
 RESOURCES += qml.qrc
 
 
+QML_IMPORT_NAME = qnx.rtos
+QML_IMPORT_MAJOR_VERSION = 1
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
 
@@ -26,7 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 qnx: {
-    unix:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
+    qnx:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
     DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
 }
 unix:!android: {
@@ -35,18 +38,16 @@ unix:!android: {
 }
 
 
-
 INCLUDEPATH += $$PWD/../lib/rtos_common/include
-
-
-
-
 INCLUDEPATH += $$PWD/../lib/rtos_ipc/include
 INCLUDEPATH += $$PWD/../lib/rtos_data/include
 
 
 
 HEADERS += \
+    consumer.h \
     inputdata.h \
-    reader.h
+    reader.h \
+    ../src/common.hpp \
+    scheduler.h
 

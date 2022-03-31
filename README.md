@@ -10,9 +10,10 @@ real-time system for monitoring of vehicle’s health conditions.
 
 ### Overview
 
-- The application consist of two parts, a producer which gathers information a dataset
-- and a consumer that displays those information to the user
-- The project is built with CMake (producer) and qmake (consumer) and uses QNX SDP 7.0 and Qt 5.12.2 framework.
+- The application consist of two parts, a producer which gathers information a dataset and a consumer that displays those information to the user
+- The project is divided into two sections: src and gui both implemented separately
+- The producer is built with CMake and makes usage of the QNX SDP 7.0
+- The consumer is build with qmake and uses QNX SDP 7.0 and Qt 5.12.2 framework
 - A toolchain file is provided so the code can be either compiled to any Unix system or cross-compiled to any supported QNX x64 system
 - Note that in order to built the GUI using GCC, the proper qmake tool needs to be generated from the Qt source files.
 
@@ -50,12 +51,11 @@ The user interface is built with Qt. Therefore, it can be compiled directly from
 ### Running on QNX VM 
 Before execution, all required libraries must be loaded and linked on the target machine
 - All built Qt libraries must be deployed to the target machine
-- Export all required envrionment variables
+- Export all required envrionment variables (refer to Qt for QNX on Qt website)
 - Upload required shared libraries (see lib/rtos_common/CmakeLists.txt)
 - Initiate the Screen graphics subsystem on the target machine
 
-
-With the target machine properly set, the application can be deployed and executed. It is recommended to use the default VM image provided by the QNX Software Center, as it comes with all the rqeuired utilities and services.
-If you are building an image from a BSP file, ensure that all services [required by Qt]("https://doc.qt.io/qt-5/qnx.html#qnx-screen-graphics-subsystem") are running before executing this application.  
+With the target machine properly set, the application can be deployed and executed. It is recommended to use the default VM image provided by the QNX Software Center, as it comes with all the required utilities and services.
+If you are building an image from a BSP file, ensure that all services [required by Qt]("https://doc.qt.io/qt-5/qnx.html#qnx-screen-graphics-subsystem") are running before executing this application.
 
 For more information on how to build a QNX OS image, access QNX user's guide

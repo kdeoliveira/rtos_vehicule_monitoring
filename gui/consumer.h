@@ -1,14 +1,15 @@
+#ifndef CONSUMER_H
+#define CONSUMER_H
 #include <rtos_scheduler.hpp>
 #include <rtos_algorithm.hpp>
 #include <rtos_task.hpp>
 #include <rtos_shared_mem.hpp>
-#include "common.hpp"
+#include "../src/common.hpp"
 
 
 class ConsumerSchedulerAlgo : public rtos::algorithm<period_task>
 {
 public:
-    //Note that this size should be implemented internally as it may result on crash
     ConsumerSchedulerAlgo(const int _sz) : rtos::algorithm<period_task>(_sz) {}
 
     template <typename T = period_task>
@@ -26,25 +27,27 @@ public:
 
     void *run(rtos::timer_cycle *_timer_cycle, const int &_sig) const override
     {
+
         #ifdef DEBUG
             printf("[consumer] Cycle: %u\n", _timer_cycle->cycles);
         #endif
 
             for (int i{0}; i < this->size(); i++)
             {
-                if (_timer_cycle->cycles == this->m_queue[i].period)
+                if((_timer_cycle->cycles + 1) % this->m_queue[i].period == 0)
                 {
                     #ifdef DEBUG
                         printf("[debug - consumer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
                         printf("[consumer] ptask id: %lu\n", this->m_queue[i].thread_id);
                     #endif
+
                     pthread_kill(this->m_queue[i].thread_id, _sig);
 
-                    
+
                 }
             }
-            
-        
+
+
 
         return nullptr;
     }
@@ -66,7 +69,7 @@ class FuelConsumption : public rtos::Task<char *>{
         std::mutex m_mx;
         // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
         rtos::SharedMem<buffer_packets> m_input_buffer;
-        
+
 };
 
 
@@ -87,16 +90,16 @@ class SensorDataTask : public rtos::Task<char *>{
 
         void run() override{
 
-            
 
-            
+
+
             if( sem_wait(m_input_buffer->semaphore_access) == -1 ){
                 perror("sem_wait");
             }
 
             if(this->m_input_buffer->buffer[*m_header].header.size > 0)
                 std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
-            
+
                 // for(auto& e : this->m_input_buffer->buffer){
                 //     std::cout << e;
                 // }
@@ -117,62 +120,12 @@ class SensorDataTask : public rtos::Task<char *>{
 
 class MainThread : public rtos::Thread<char*>{
     public:
-        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{
+        MainThread(int id, rtos::Task<char *>* task) : rtos::Thread<char *>{task, false, SIGUSR2}, m_id{id}{
+            this->start();
         }
 
     private:
         int m_id;
 };
 
-
-int main(int argc, char *argv[])
-{
-    try{
-        puts("Starting consumer task");
-
-        rtos::Task<char *>* consumer[12];
-        std::unique_ptr<MainThread> thread_consumer[12];
-        
-        for(u_int8_t i{0}; i < 12U ; i++){
-            consumer[i] = new SensorDataTask("m_buffer_input", i);
-            thread_consumer[i] = std::make_unique<MainThread>((int)i, consumer[i]);
-        }
-
-        
-
-        
-        for(u_int8_t i{0}; i < 12U ; i++){
-            thread_consumer[i]->start();
-        }
-
-        auto *algo = new ConsumerSchedulerAlgo{2};
-
-        rtos::Scheduler<period_task> sched_consumer{SIGUSR1, algo, 5};
-
-        period_task c_task[2];
-        c_task[0].period = (uint8_t)0;
-        c_task[0].thread_id = thread_consumer[0]->get_thread_id();
-
-        c_task[1].period = (uint8_t)0;
-        c_task[1].thread_id = thread_consumer[1]->get_thread_id();
-
-        algo->push(c_task[0], c_task[1]);
-
-        sched_consumer.dispatch(SIGUSR2);
-
-
-        for(u_int8_t i{0}; i < 12U ; i++){
-            thread_consumer[i]->join();
-        }
-
-    }
-    catch(std::exception& e){
-        std::cout << "ERROR: " << e.what() << std::endl;
-    }
-    catch(char const* x){
-        puts(x);
-    }
-
-
-    return EXIT_SUCCESS;
-}
+#endif // CONSUMER_H

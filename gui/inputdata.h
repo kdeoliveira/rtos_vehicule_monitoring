@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include <consumer.h>
 
 #include "reader.h"
 
@@ -118,8 +119,13 @@ private:
     int m_engine_coolant;
     int m_gear;
     bool m_bufferStatus;
-    Reader* m_thread;
+    MainThread* m_thread;
+    Reader* m_reader;
 
+public:
+    pthread_t get_thread_id(){
+        return this->m_thread->get_thread_id();
+    }
 
 public slots:
     void readPipe(const float&, const float&, const int&, const float&, const int&);

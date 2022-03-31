@@ -20,7 +20,7 @@ namespace rtos{
                 this->m_cycles(number_of_cycles);
             }
 
-            Scheduler(int signmum, algorithm<T>* _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}, m_cycles(number_of_cycles){
+            Scheduler(int signmum, algorithm<T>* _algorithm, const u_int8_t number_of_cycles) : m_cycles(number_of_cycles), m_signum{signmum}{
                 // if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm.reset(_algorithm);
                 
@@ -61,13 +61,15 @@ namespace rtos{
                 while(true){
                     if(this->m_cycles.cycles < 0) return;
 
+
                     
                     
                     sigwaitinfo(&set, &info);
 
 
+
                     if(this->m_algorithm != nullptr){
-                        
+
                         this->m_algorithm->run(&this->m_cycles, _sig);
                     }
 

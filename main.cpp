@@ -17,9 +17,13 @@
 
 #include <semaphore.h>
 
+#include <libgen.h>
+
 void signal_handler(int signum){
 
-    std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
+    #ifdef DEBUG
+        std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
+    #endif
 
     sem_unlink("sem_modification");
     sem_unlink("sem_access");
@@ -48,6 +52,12 @@ void signal_handler(int signum){
     exit(EXIT_SUCCESS);
 }
 
+
+
+// ===============
+// MAIN
+// ===============
+
 int main(int argc, char *argv[])
 {
     //Gracefully closing all opened fds if SIGINT signal event occurs
@@ -59,6 +69,16 @@ int main(int argc, char *argv[])
 
 
     puts("Application starting...");
+
+    char res[PATH_MAX];
+    ssize_t cnt = readlink("/proc/self/exe", res, PATH_MAX);
+    char *buf_temp;
+    if(cnt != -1){
+        buf_temp = dirname(res);
+    }else{
+        getcwd(buf_temp, PATH_MAX + 1);
+    }
+    // puts(pth);
 
     
     int fd[2];
@@ -81,9 +101,10 @@ int main(int argc, char *argv[])
         sprintf(arg_fd_2, "%d", fd[1]);
 
 
-        char buf_temp[PATH_MAX + 1];
+        // char buf_temp[PATH_MAX + 1];
 
-        getcwd(buf_temp, PATH_MAX + 1);
+        // getcwd(buf_temp, PATH_MAX + 1);
+        
 
 
         std::string path = buf_temp;
@@ -95,12 +116,21 @@ int main(int argc, char *argv[])
 
 
             const char *arg_pid = std::to_string(getpid()).c_str();
-            #ifdef _QNX_x86_64
-                path += "/gui/qnx/debug/gui";
+            #ifdef DEBUG
+                #ifdef _QNX_x86_64
+                    path += "/gui/qnx/debug/gui";
+                #else
+                    path += "/gui/x64/debug/gui";
+                #endif
             #else
-                path += "/gui/x64/debug/gui";
+                #ifdef _QNX_x86_64
+                    path += "/gui/qnx/release/gui";
+                #else
+                    path += "/gui/x64/release/gui";
+                #endif
             #endif
 
+            puts(path.c_str());
 
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
@@ -115,9 +145,9 @@ int main(int argc, char *argv[])
 
             const char *arg_pid = std::to_string(getpid()).c_str();
 
-            char buf_temp[PATH_MAX + 1];
+            // char buf_temp[PATH_MAX + 1];
 
-            getcwd(buf_temp, PATH_MAX + 1);
+            // getcwd(buf_temp, PATH_MAX + 1);
 
             std::string path = buf_temp;
             path += "/src/producer";
@@ -140,7 +170,8 @@ int main(int argc, char *argv[])
         
         rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
 
-        if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
+        // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
+        if (m_timer.start(1, 0) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){
@@ -148,7 +179,7 @@ int main(int argc, char *argv[])
         });
 
 
-        m_timer.notify(0, nullptr);
+        m_timer.notify(nullptr);
 
         int status;
         if (waitpid(pid, &status, 0) > 0)

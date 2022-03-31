@@ -1,6 +1,5 @@
 
 
-add_executable(writer writer.cpp)
 add_executable(reader reader.cpp)
 add_executable(test_producer test_producer.cpp)
 add_executable(producer producer.cpp)
@@ -29,20 +28,6 @@ target_link_libraries(
 )
 
 
-
-target_link_libraries(
-    writer rtos_data
-)
-
-target_link_libraries(
-    writer rtos_ipc
-)
-
-if(NOT DEFINED QNX_PROCESSOR)
-    target_link_libraries(
-        writer pthread
-    )
-endif()
 
 target_link_libraries(
     reader rtos_ipc

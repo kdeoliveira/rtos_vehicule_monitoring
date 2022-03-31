@@ -27,6 +27,8 @@
 class ProducerSchedulerAlgo : public rtos::algorithm<period_task>
 {
 public:
+    //TODO:
+    //Note that this size should be implemented internally as it may result on crash
     ProducerSchedulerAlgo(const int _sz) : rtos::algorithm<period_task>{_sz} {}
 
     template<typename T = period_task>
@@ -76,7 +78,7 @@ public:
             for(int i{0}; i < this->size() ; i++){
             
                 
-                if(this->m_queue[i].period % (_timer_cycle->cycles + 1) == 0){
+                if((_timer_cycle->cycles + 1) % this->m_queue[i].period == 0){
                     
                     #ifdef DEBUG
                         printf("[debug - producer] period of task %u -> %u \n", _timer_cycle->cycles, this->m_queue[i].period);
@@ -162,8 +164,9 @@ class Producer : public rtos::Task<char *>{
 
         
         // if( sem_post(m_input_buffer->semaphore_modification) == -1 ) perror("sem_post");
-
-        std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
+        #ifdef DEBUG
+            std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
+        #endif
         m_arg_row++;
 
     });
@@ -266,7 +269,6 @@ int main(int argc, char *argv[])
         period_task p_task[1];
         // p_task[0].period = (uint8_t) 2;
         // p_task[0].thread_id = thread->get_thread_id();
-
 
         p_task[0].period = (uint8_t) 1;
         p_task[0].thread_id = thread1->get_thread_id();
