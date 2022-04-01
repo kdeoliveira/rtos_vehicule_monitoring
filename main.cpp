@@ -1,6 +1,4 @@
-
 #include <stdio.h>
-
 #include <cstdlib>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -23,6 +21,8 @@
 
 #include <string.h>
 
+// #define TERMINAL
+
 struct _buffer_clock{
     int current_val_seconds = 1;
     int current_val_nanoseconds = 0;
@@ -31,6 +31,11 @@ struct _buffer_clock{
 typedef struct _buffer_clock buffer_clock;
 
 
+/**
+ * @brief Signal handler called on interruption. Attempts to gracefully stop all running processes and unlinking any opened shared memory segment
+ * 
+ * @param signum 
+ */
 void signal_handler(int signum){
 
     #ifdef DEBUG
@@ -72,6 +77,14 @@ void signal_handler(int signum){
 // MAIN
 // ===============
 
+/**
+ * Process manager responsible for starting the Consumer and Producer tasks
+ * Each task is run by a new child process:
+ * Consumer: /src/consumer.cpp or /gui/main.cpp
+ * Producer: /src/producer.cpp
+ * 
+ * A second child process is created exclusively for the Timer
+ */
 int main(int argc, char *argv[])
 {
 
@@ -81,6 +94,10 @@ int main(int argc, char *argv[])
     //Gracefully closing all opened fds if SIGINT signal event occurs
     signal(SIGINT, signal_handler);
 
+    /**
+     * @brief Mask all signals used by this application
+     * 
+     */
     rtos::util::mask_signal(SIGUSR1);
     rtos::util::mask_signal(SIGUSR2);
     // rtos::util::mask_signal(SIGALRM);
@@ -88,6 +105,11 @@ int main(int argc, char *argv[])
 
     puts("Application starting...");
 
+
+    /**
+     * @brief Gets the current working directory
+     * 
+     */
     char res[PATH_MAX];
     ssize_t cnt = readlink("/proc/self/exe", res, PATH_MAX);
     char buf_temp[PATH_MAX];
@@ -116,14 +138,7 @@ int main(int argc, char *argv[])
         char arg_fd_2[2];
         sprintf(arg_fd_1, "%d", fd[0]);
         sprintf(arg_fd_2, "%d", fd[1]);
-
-
-        // char buf_temp[PATH_MAX + 1];
-
-        // getcwd(buf_temp, PATH_MAX + 1);
-        
-
-
+       
         std::string path = buf_temp;
 
 
@@ -133,23 +148,32 @@ int main(int argc, char *argv[])
 
 
             const char *arg_pid = std::to_string(getpid()).c_str();
-            #ifdef DEBUG
-                #ifdef _QNX_x86_64
-                    path += "/gui/qnx/debug/gui";
-                #else
-                    path += "/gui/x64/debug/gui";
-                #endif
+
+            #ifdef TERMINAL
+                path += "/src/consumer";
             #else
-                #ifdef _QNX_x86_64
-                    path += "/gui/qnx/release/gui";
+
+                #ifdef DEBUG
+                    #ifdef _QNX_x86_64
+                        path += "/gui/qnx/debug/gui";
+                    #else
+                        path += "/gui/x64/debug/gui";
+                    #endif
                 #else
-                    path += "/gui/x64/release/gui";
-                    // path += "/src/consumer";
+                    #ifdef _QNX_x86_64
+                        path += "/gui/qnx/release/gui";
+                    #else
+                        path += "/gui/x64/release/gui";
+                    #endif
                 #endif
             #endif
 
-            puts(path.c_str());
 
+
+            /**
+             * @brief Starts the consumer process and passes all required arguments
+             * 
+             */
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
                 perror("execl");
@@ -163,14 +187,13 @@ int main(int argc, char *argv[])
 
             const char *arg_pid = std::to_string(getpid()).c_str();
 
-            // char buf_temp[PATH_MAX + 1];
-
-            // getcwd(buf_temp, PATH_MAX + 1);
-
             std::string path = buf_temp;
             path += "/src/producer";
 
-
+            /**
+             * @brief Starts the producer process and passes all the required arguments
+             * 
+             */
             if (execl(path.c_str(), arg_pid, arg_fd_1, arg_fd_2, NULL) < 0)
             {
                 perror("execl");
@@ -196,17 +219,24 @@ int main(int argc, char *argv[])
 
 
         // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
-        if (m_timer.start(1, 0) < 0)
+        if (m_timer.start(shared_mem_timer->current_val_seconds, shared_mem_timer->current_val_nanoseconds) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){
             if(m_timer.get_timer_spec().it_value.tv_sec != shared_mem_timer->current_val_seconds || m_timer.get_timer_spec().it_value.tv_nsec != shared_mem_timer->current_val_nanoseconds){
+
                 m_timer.start(
                     shared_mem_timer->current_val_seconds, shared_mem_timer->current_val_nanoseconds
                 );
-                std::cout << "Value of timer changed" << std::endl;
-                std::cout << shared_mem_timer->current_val_seconds << " s \t " << shared_mem_timer->current_val_nanoseconds << " ns" << std::endl;
+
+                #ifdef DEBUG
+                    std::cout << "\033[1;41mValue of timer changed\33[0m" << std::endl;
+                    std::cout << shared_mem_timer->current_val_seconds << " s \t " << shared_mem_timer->current_val_nanoseconds << " ns" << std::endl;
+                #endif
+
             }
+            //Signal parent process every cycle
+            //to wake-up the Scheduler
             killpg( getpgid(pid) , SIGUSR1);
         });
 

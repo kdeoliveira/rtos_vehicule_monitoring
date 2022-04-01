@@ -8,11 +8,23 @@
 
 
 namespace rtos{
+    /**
+     * @brief Header of a packet defined by an ID and containing the current size of the packet 
+     * 
+     * @tparam T 
+     */
     template<typename T>
     struct packet_header{
         T id {};
         uint16_t size = 0;
 
+        /**
+         * @brief Assigns the ID of this header
+         * 
+         * @tparam X 
+         * @param arg 
+         * @return packet_header<T>& 
+         */
         template<typename X>
         packet_header<T>& operator = (const X& arg){
             static_assert(std::is_standard_layout<X>::value, "Template is too complex");
@@ -23,6 +35,12 @@ namespace rtos{
         }
     };
 
+    /**
+     * @brief Packet structure which encapsulates a header and a payload. Since only simple data will be used, the payload consists of simple type
+     * 
+     * @tparam T Header type
+     * @tparam R Payload type
+     */
     template<typename T, typename R>
     struct packet_data{
         packet_header<T> header;
@@ -57,6 +75,14 @@ namespace rtos{
             return os;
         }
 
+        /**
+         * @brief Inserts a payload to this packet
+         * 
+         * @tparam X Standard or scalar data type
+         * @param data 
+         * @param in 
+         * @return packet_data<T, R>& 
+         */
         template<typename X>
         friend packet_data<T, R>& operator << (packet_data<T, R>& data,const X& in){
             static_assert(std::is_standard_layout<X>::value, "Template is too complex");

@@ -4,6 +4,11 @@
 
 namespace rtos{
 
+    /**
+     * @brief Thread safe buffer STL container using traditional raw arrays
+     * 
+     * @tparam T 
+     */
     template<typename T>
     class buffer : public thread_safe<T>{
         public:

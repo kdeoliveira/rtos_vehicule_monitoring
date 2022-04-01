@@ -8,10 +8,17 @@
 
 namespace rtos{
     
+    /**
+     * @brief Context interface that implements the scheduler run by a given process
+     * The scheduler is responsible for "waking-up" any given thread at a given moment.
+     * Note that threads receiving signals from the Scheduler should have the appropriate signal masked
+     * @tparam T type of task
+     */
     template<typename T>
     class Scheduler{
         public:
             Scheduler() = delete;
+
 
             Scheduler(int signmum, std::shared_ptr<algorithm<T>> _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}{
                 if(m_algorithm == nullptr) throw "Algorithm object is null";
@@ -19,7 +26,14 @@ namespace rtos{
                 //Equiavelent to a Hyperperiod
                 this->m_cycles(number_of_cycles);
             }
-
+            /**
+             * @brief Construct a new Scheduler object.
+             * Note that in order to avoid long integers, the Scheduler will run over a cyclic period [0 , Hyperperoid]
+             * 
+             * @param signmum Signal used by this scheduler to signal other threads
+             * @param _algorithm Algorithm implementation for this scheduler
+             * @param number_of_cycles Hyperperiod of this scheduler. 
+             */
             Scheduler(int signmum, algorithm<T>* _algorithm, const u_int8_t number_of_cycles) : m_cycles(number_of_cycles), m_signum{signmum}{
                 // if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm.reset(_algorithm);

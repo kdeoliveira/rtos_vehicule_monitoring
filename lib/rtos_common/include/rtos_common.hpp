@@ -12,7 +12,10 @@ namespace rtos{
 }
 
 
-
+/**
+ * @brief Defines unsigned integers when in QNX environment, since QNX libraries does not provide such definitions
+ * 
+ */
 #ifdef _QNX_x86_64
     #include "signal.h"
     typedef signed char int8_t;

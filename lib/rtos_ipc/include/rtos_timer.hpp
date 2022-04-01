@@ -16,6 +16,9 @@
 #define gettid() ((pid_t)syscall(SYS_gettid))
 
 namespace rtos{
+    /**
+     * @brief Counter for timer period
+     */
     struct timer_cycle{
         u_int8_t hyperperiod = 1;
         u_int8_t cycles = 0;
@@ -48,10 +51,21 @@ namespace rtos{
         }
 
     };
+
+    /**
+     * @brief Creates a new timer for this process
+     * 
+     */
     class Timer{
         public:
             Timer(const Timer&) = delete;
             Timer() = delete;
+            /**
+             * @brief Construct a new Timer object
+             * 
+             * @param clock_type 
+             * @param signum 
+             */
             Timer(clockid_t clock_type, int signum){
                 
                 this->callback = nullptr;
@@ -77,7 +91,13 @@ namespace rtos{
             }
 
 
-
+            /**
+             * @brief Sets the timer to the given value and starts the timer
+             * 
+             * @param period_seconds 
+             * @param period_nanoseconds 
+             * @return int 
+             */
             int start(int period_seconds, int period_nanoseconds){
                 m_timerspec.it_value.tv_sec = period_seconds;
                 m_timerspec.it_interval.tv_sec = period_seconds;
@@ -87,6 +107,11 @@ namespace rtos{
                 return timer_settime(this->m_timer, 0, &m_timerspec, nullptr);
             }
 
+            /**
+             * @brief Callback function called on every clock signal
+             * 
+             * @param _args 
+             */
             void notify(void* _args){
                 siginfo_t info;
                 // sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
@@ -117,6 +142,12 @@ namespace rtos{
                 }
             }
 
+            /**
+             * @brief Register a callback function that will invoked on every clock signal
+             * 
+             * @tparam T 
+             * @param _callback 
+             */
             template<typename T>
             void onNotify(T _callback){
                 

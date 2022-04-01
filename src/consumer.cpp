@@ -95,7 +95,7 @@ class SensorDataTask : public rtos::Task<char *>{
             }
 
             if(this->m_input_buffer->buffer[*m_header].header.size > 0)
-                std::cout << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << std::endl;
+                std::cout << "\033[1;32m" << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << "\033[0m" << std::endl;
             
                 // for(auto& e : this->m_input_buffer->buffer){
                 //     std::cout << e;

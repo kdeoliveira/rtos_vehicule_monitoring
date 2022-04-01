@@ -11,11 +11,21 @@
 namespace rtos
 {
 
+    /**
+     * @brief Object that represents an object stored in shared memory segment
+     * 
+     * @tparam T type of object that will be stored
+     */
     template <typename T>
     class SharedMem
     {
 
     public:
+        /**
+         * @brief Construct a new Shared Mem object
+         * 
+         * @param name name of the shared memory instance created
+         */
         SharedMem(const char *name) : m_name{name}
         {
 
@@ -47,10 +57,20 @@ namespace rtos
             close(this->m_fd);
         }
 
+        /**
+         * @brief Access to the object stored in memory
+         * 
+         * @return T* pointer to the object's value
+         */
         T* operator->(){
             return m_object;
         }
 
+        /**
+         * @brief Get the file descriptor used by shm_open
+         * 
+         * @return int 
+         */
         int get_fd() const{
             return this->m_fd;
         }

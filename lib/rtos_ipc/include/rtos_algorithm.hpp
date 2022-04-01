@@ -4,6 +4,11 @@
 
 
 namespace rtos{
+    /**
+     * @brief Strategy interface called by the Scheduler
+     * 
+     * @tparam T type of task
+     */
     template<typename T>
     class algorithm{
         public:
@@ -19,7 +24,14 @@ namespace rtos{
                 this->m_queue = new T[sz];
                 m_index = 0;
             }
-
+            /**
+             * @brief Virtual function that is called by the Scheduler
+             * Algorithm should be implemented here
+             * 
+             * @param _timer_cycle current cycle of the timer
+             * @param _signmum signal received by the timer
+             * @return void* 
+             */
             virtual void * run(timer_cycle* _timer_cycle, const int& _signmum) const = 0;
 
             T* get_queue(){

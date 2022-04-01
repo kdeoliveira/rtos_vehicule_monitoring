@@ -7,6 +7,11 @@
 
 namespace rtos{
 
+    /**
+     * @brief Complementary implementation of a thread safe container
+     * The STL container should derive from this class
+     * @tparam T 
+     */
     template<typename T>
     class thread_safe{
         public:

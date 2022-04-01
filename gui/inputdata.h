@@ -113,8 +113,6 @@ public:
         int temp_sec = dial / 1000;
         int temp_nsec = (dial % 1000) * rtos::Timer::MILLION;
 
-
-
         m_shared_mem_timer->current_val_seconds = temp_sec;
         m_shared_mem_timer->current_val_nanoseconds = temp_nsec;
 

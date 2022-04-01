@@ -12,10 +12,19 @@
 
 namespace rtos
 {
+    /**
+     * @brief Input stream for files. Alternative C implementation of ifstream provided by the std library
+     * 
+     */
     class InputFile
     {
     public:
         InputFile() = default;
+        /**
+         * @brief Construct a new Input File object
+         * 
+         * @param filename absolute path of file
+         */
         InputFile(const char *filename)
         {
             if (
@@ -51,6 +60,11 @@ namespace rtos
         InputFile(const InputFile&) = delete;
         InputFile& operator=(const InputFile&) = delete;
 
+        /**
+         * @brief Opens file in read mode
+         * 
+         * @param filename 
+         */
         void open(const char* filename){
             try{
                 this->file_stream = fopen(
@@ -77,6 +91,11 @@ namespace rtos
             
         }
 
+        /**
+         * @brief Reads file line by line and stores inside a temporary buffer
+         * Note that maximum size of read bytes is defined by BUFFER_SIZE
+         * @return BYTE* char* equivalent value of the buffer.
+         */
         BYTE* read_line()
         {
             if( fgets(this->line_stream, BUFFER_SIZE, this->file_stream) == nullptr ){
@@ -94,14 +113,29 @@ namespace rtos
         //     return this->values.get();
         // }
 
+        /**
+         * @brief Get current line number
+         * 
+         * @return const int 
+         */
         const int line_index() const{
             return this->_line_index;
         }
 
+        /**
+         * @brief Get the file size object
+         * 
+         * @return const size_t 
+         */
         const size_t get_file_size() const{
             return this->file_size;
         }
 
+        /**
+         * @brief Get the current position of the stream
+         * 
+         * @return long int 
+         */
         long int get_position(){
             return this->position;
         }
@@ -120,10 +154,20 @@ namespace rtos
         //     return x.values[0] + x.size();
         // }
 
+        /**
+         * @brief Get a file descriptor for the stream
+         * 
+         * @return int 
+         */
         int get_fd(){
             return this->fd;
         }
 
+        /**
+         * @brief Returns if stream has reached END OF FILE
+         * 
+         * @return bool  
+         */
         bool is_eof(){
             return this->file_size <= this->position;
         }

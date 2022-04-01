@@ -7,14 +7,17 @@ if(DEFINED QNX_PROCESSOR)
     add_definitions(-D_QNX_x86_64)
     add_definitions(-DDATASET_PATH="/opt/apps/dataset.csv")
 else()
-add_definitions(-DDATASET_PATH="/home/dev/dev/rtos_vehicule_monitoring/data/dataset.csv")
+
+
+add_definitions(-DDATASET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/dataset.csv")
 endif()
 
 
-if(CMAKE_BUILD_TYPE EQUAL Debug)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
     message("Building in debug mode")
     add_definitions(-DDEBUG)
 endif()
+
 
 
 include(CTest)

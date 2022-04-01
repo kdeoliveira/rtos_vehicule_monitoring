@@ -6,6 +6,11 @@
 #include <rtos_ipc.hpp>
 
 namespace rtos{
+    /**
+     * @brief Runnable object that is executed by a thread
+     * 
+     * @tparam T 
+     */
     template<typename T>
     class Task{
         public:
@@ -13,6 +18,11 @@ namespace rtos{
             virtual ~Task(){}
     };
 
+    /**
+     * @brief POSIX Thread class
+     * 
+     * @tparam T 
+     */
     template<typename T>
     class Thread{
         public:
@@ -22,6 +32,13 @@ namespace rtos{
                 }
             }
 
+            /**
+             * @brief Construct a new Thread object that will execute a given task
+             * 
+             * @param run Runnable instance
+             * @param isDetached 
+             * @param signum Signal which this thread will be sensitive to
+             */
             Thread(Task<T>* run, bool isDetached, const int signum) : detached{isDetached}, m_signum{signum}{
                 m_runnable.reset(run);
                 if(!m_runnable.get()){
@@ -47,6 +64,12 @@ namespace rtos{
                 pthread_attr_destroy(&this->m_thread_attr);
 
             }
+
+            /**
+             * @brief Starts the execution of this thread by calling internally Thread::startThread
+             * The thread remains suspended until the specified SIGNUM signal becomes pending
+             * 
+             */
             void start(){
                 int status = pthread_attr_init(&this->m_thread_attr);
                 if(status) throw "Invalid pthread_attr";

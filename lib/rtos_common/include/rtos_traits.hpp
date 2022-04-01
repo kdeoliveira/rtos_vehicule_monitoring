@@ -22,6 +22,12 @@ struct callback_type<ReturnType (ClassType::*)(Arguments...) const> : callback_t
 {
 };
 
+/**
+ * @brief Function traits for predicates. It provides access to the type of each argument and arity 
+ * 
+ * @tparam fn(*)(Arguments...) 
+ * @tparam std::tuple<Index, Argument's type> and arity
+ */
 template <typename ClassType, typename ReturnType, typename... Arguments>
 struct callback_type<ReturnType (ClassType::*)(Arguments...)> : callback_type<ReturnType (*)(Arguments...)>
 {

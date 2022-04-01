@@ -22,11 +22,19 @@ namespace rtos
         REDIRECT,
         CREATE
     };
-
+    /**
+     * @brief Creates a new unidirectional data channel with pipes
+     * 
+     */
     class PipeManager
     {
 
     public:
+    /**
+     * @brief Construct a new pipe with either new file descriptors or redirecting the READ or WRITE end of the pipe to another file descriptor
+     * 
+     * @param _mode PipeMode
+     */
         PipeManager(const PipeMode &_mode = PipeMode::READ_WRITE) : mode{_mode}
         {
 
@@ -38,7 +46,11 @@ namespace rtos
             this->flags = PipeFlag::CREATE;
             this->fd_stream = nullptr;
         }
-
+        /**
+         * @brief Construct a new pipe with either new file descriptors or redirecting the READ or WRITE end of the pipe to another file descriptor
+         * 
+         * @param _mode PipeMode
+         */
         PipeManager(int _fd[2], const PipeMode &_mode, const PipeFlag &_flags) : mode{_mode} , flags{_flags}
         {
             if(_mode == PipeMode::READ_WRITE){
@@ -86,6 +98,12 @@ namespace rtos
                 close(this->fd[1]);
         }
 
+        /**
+         * @brief Register callback functions invoked during the reading of the pipe
+         * 
+         * @tparam T 
+         * @param callback 
+         */
         template <typename T>
         void onRead(T callback)
         {
@@ -93,8 +111,12 @@ namespace rtos
             callbacks.push_back(callback);
         }
 
-        //Reads one buffer line at the time
-        // TODO: sync with its respective periodic task
+        /**
+         * @brief Reads one buffer line at the time of the pipe up to the size of the type T passed
+         * 
+         * @tparam T 
+         * @return int returns 0 if successful or -1 if error occurred
+         */
         template <typename T>
         int read_pipe()
         {
@@ -137,6 +159,13 @@ namespace rtos
             return 0;
         }
 
+        /**
+         * @brief Write into the pipe
+         * 
+         * @tparam T 
+         * @param buffer 
+         * @return int 
+         */
         template <typename T>
         int write_pipe(const T &buffer)
         {
