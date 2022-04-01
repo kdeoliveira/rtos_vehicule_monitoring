@@ -21,6 +21,14 @@
 
 #include <cstring>
 
+#include <sys/syscall.h>
+
+#ifndef SYS_gettid
+    #error "SYS_gettid unavailable on this system"
+#endif
+
+#define gettid() ((pid_t)syscall(SYS_gettid))
+
 
 
 
@@ -66,7 +74,7 @@ public:
         // {
         //     printf("Current time spend: %f\n",  (double)(current - start));
         // }
-
+        
         #ifdef DEBUG
             printf("[producer] Cycle: %u\n", _timer_cycle->cycles);
         #endif

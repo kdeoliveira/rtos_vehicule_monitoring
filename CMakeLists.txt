@@ -12,7 +12,8 @@ endif()
 
 
 if(CMAKE_BUILD_TYPE EQUAL Debug)
-add_definitions(-DDEBUG)
+    message("Building in debug mode")
+    add_definitions(-DDEBUG)
 endif()
 
 

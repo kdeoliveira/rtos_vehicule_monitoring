@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
                     path += "/gui/qnx/release/gui";
                 #else
                     path += "/gui/x64/release/gui";
+                    // path += "/src/consumer";
                 #endif
             #endif
 

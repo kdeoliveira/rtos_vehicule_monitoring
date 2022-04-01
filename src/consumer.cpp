@@ -150,10 +150,10 @@ int main(int argc, char *argv[])
         rtos::Scheduler<period_task> sched_consumer{SIGUSR1, algo, 5};
 
         period_task c_task[2];
-        c_task[0].period = (uint8_t)0;
+        c_task[0].period = (uint8_t)1;
         c_task[0].thread_id = thread_consumer[0]->get_thread_id();
 
-        c_task[1].period = (uint8_t)0;
+        c_task[1].period = (uint8_t)1;
         c_task[1].thread_id = thread_consumer[1]->get_thread_id();
 
         algo->push(c_task[0], c_task[1]);

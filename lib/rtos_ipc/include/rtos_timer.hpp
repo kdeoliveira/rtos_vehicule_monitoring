@@ -7,6 +7,14 @@
 #include <vector>
 #include <errno.h>
 
+#include <sys/syscall.h>
+
+#ifndef SYS_gettid
+    #error "SYS_gettid unavailable on this system"
+#endif
+
+#define gettid() ((pid_t)syscall(SYS_gettid))
+
 namespace rtos{
     struct timer_cycle{
         u_int8_t hyperperiod = 1;
