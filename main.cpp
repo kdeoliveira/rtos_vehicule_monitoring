@@ -12,12 +12,24 @@
 #include <rtos_timer.hpp>
 #include <limits.h>
 
+#include <rtos_shared_mem.hpp>
+
 #include <sys/resource.h>
 #include <sys/mman.h>
 
 #include <semaphore.h>
 
 #include <libgen.h>
+
+#include <string.h>
+
+struct _buffer_clock{
+    int current_val_seconds = 1;
+    int current_val_nanoseconds = 0;
+};
+
+typedef struct _buffer_clock buffer_clock;
+
 
 void signal_handler(int signum){
 
@@ -28,6 +40,8 @@ void signal_handler(int signum){
     sem_unlink("sem_modification");
     sem_unlink("sem_access");
     shm_unlink("m_buffer_input");
+    shm_unlink("m_input_buffer_clock");
+
 
 
     
@@ -60,6 +74,10 @@ void signal_handler(int signum){
 
 int main(int argc, char *argv[])
 {
+
+    #ifdef DEBUG
+        puts("DEBUG MODE");
+    #endif
     //Gracefully closing all opened fds if SIGINT signal event occurs
     signal(SIGINT, signal_handler);
 
@@ -72,13 +90,12 @@ int main(int argc, char *argv[])
 
     char res[PATH_MAX];
     ssize_t cnt = readlink("/proc/self/exe", res, PATH_MAX);
-    char *buf_temp;
+    char buf_temp[PATH_MAX];
     if(cnt != -1){
-        buf_temp = dirname(res);
+        strcpy(buf_temp, dirname(res));
     }else{
         getcwd(buf_temp, PATH_MAX + 1);
     }
-    // puts(pth);
 
     
     int fd[2];
@@ -167,14 +184,28 @@ int main(int argc, char *argv[])
 
     else
     {
+
+        rtos::SharedMem<buffer_clock> shared_mem_timer("m_input_buffer_clock");
+
+        shared_mem_timer->current_val_seconds = 1;
+        shared_mem_timer->current_val_nanoseconds = 0;
+
         
-        rtos::Timer m_timer{CLOCK_REALTIME, SIGUSR2};
+        rtos::Timer m_timer{CLOCK_MONOTONIC, SIGUSR2};
+
 
         // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
         if (m_timer.start(1, 0) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){
+            if(m_timer.get_timer_spec().it_value.tv_sec != shared_mem_timer->current_val_seconds || m_timer.get_timer_spec().it_value.tv_nsec != shared_mem_timer->current_val_nanoseconds){
+                m_timer.start(
+                    shared_mem_timer->current_val_seconds, shared_mem_timer->current_val_nanoseconds
+                );
+                std::cout << "Value of timer changed" << std::endl;
+                std::cout << shared_mem_timer->current_val_seconds << " s \t " << shared_mem_timer->current_val_nanoseconds << " ns" << std::endl;
+            }
             killpg( getpgid(pid) , SIGUSR1);
         });
 

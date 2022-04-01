@@ -1,6 +1,7 @@
 QT += quick
 CONFIG += qmltypes
-TARGET = gui
+
+
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -24,20 +25,45 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
+qnx: target.path = /opt/apps/$${TARGET}
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+
+
 qnx: {
+    DEFINES += _QNX_x86_64
     qnx:!macx: LIBS += -L$$PWD/../build_qnx/lib/rtos_common/ -lrtos_common
     DEPENDPATH += $$PWD/../build_qnx/lib/rtos_common
+    CONFIG(debug, debug|release){
+        DESTDIR = $$PWD/../build_qnx/gui/qnx/debug/
+    }else{
+        DESTDIR = $$PWD/../build_qnx/gui/qnx/release/
+    }
+
 }
-unix:!android: {
+unix:!qnx: {
+    TARGET = gui
     unix:!macx: LIBS += -L$$PWD/../build/lib/rtos_common/ -lrtos_common -lrt
     DEPENDPATH += $$PWD/../build/lib/rtos_common
+
+    CONFIG(debug, debug|release){
+        DESTDIR = $$PWD/../build/gui/x64/debug/
+    }else{
+        DESTDIR = $$PWD/../build/gui/x64/release/
+
+    }
+
 }
 
+# Destination of build files
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
+RCC_DIR = $$DESTDIR/.qrc
+UI_DIR = $$DESTDIR/.ui
 
+
+# Inlcuding producers' header
 INCLUDEPATH += $$PWD/../lib/rtos_common/include
 INCLUDEPATH += $$PWD/../lib/rtos_ipc/include
 INCLUDEPATH += $$PWD/../lib/rtos_data/include

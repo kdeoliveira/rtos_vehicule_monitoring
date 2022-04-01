@@ -21,6 +21,13 @@
 
 #include <consumer.h>
 
+struct _buffer_clock{
+    int current_val_seconds = 1;
+    int current_val_nanoseconds = 0;
+};
+
+typedef struct _buffer_clock buffer_clock;
+
 class Reader : public QObject, public rtos::Task<char *>
 {
     Q_OBJECT
@@ -70,6 +77,8 @@ protected:
 //                std::cout << this->m_input_buffer->buffer[i];
 
 //            }
+
+
 
             if(this->m_input_buffer->status != 1){
                 emit currentStatus(false);

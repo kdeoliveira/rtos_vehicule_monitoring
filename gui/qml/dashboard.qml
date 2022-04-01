@@ -281,12 +281,56 @@ Window {
                 currentIndex: inputSource.gear
             }
         }
+
+        Dial {
+            id: dial
+            x: 832
+            width: 80
+            height: 80
+            stepSize: 1.0
+            from: 1
+            to: 1000
+            value: inputSource.dial
+            onValueChanged: inputSource.dial = dial.value
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+        }
+
+        Label {
+            id: label
+            x: 886
+
+            color: "#dfdfe4"
+            text: qsTr("Time Clock")
+            anchors.top: parent.top
+            anchors.topMargin: 25
+            anchors.right: parent.right
+            anchors.rightMargin: 100
+        }
+
+        Text {
+            id: element2
+            x: 886
+            width: 74
+            height: 15
+            color: "#e6e1e1"
+            text: String(dial.value.toFixed(0)) + " ms"
+            horizontalAlignment: Text.AlignLeft
+            anchors.right: parent.right
+            anchors.rightMargin: 100
+            anchors.top: parent.top
+            anchors.topMargin: 48
+            font.pixelSize: 12
+        }
     }
 }
 
 /*##^##
 Designer {
-    D{i:13;anchors_y:122}D{i:14;anchors_x:"-38"}
+    D{i:13;anchors_y:122}D{i:14;anchors_x:"-38"}D{i:25;anchors_y:8}D{i:26;anchors_y:25}
+D{i:27;anchors_y:48}
 }
 ##^##*/
 

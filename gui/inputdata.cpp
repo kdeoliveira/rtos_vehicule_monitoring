@@ -1,9 +1,10 @@
 #include "inputdata.h"
 #include "QDebug"
 
-InputData::InputData(QObject *parent) : QObject(parent)
+InputData::InputData(QObject *parent) : QObject(parent), m_shared_mem_timer{"m_input_buffer_clock"}
 {
     this->m_speed = 0.00;
+    this->m_dial = 1000;
 }
 
 
@@ -30,7 +31,6 @@ void InputData::readPipe(const float& speed, const float& rpm, const int& engine
     setEngineCoolant(engine);
     setFuel_consumption(fuel);
     setGear(gear);
-
 }
 
 void InputData::getStatus(const bool & status)
