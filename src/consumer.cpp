@@ -64,7 +64,6 @@ class FuelConsumption : public rtos::Task<char *>{
 
     private:
         std::mutex m_mx;
-        // rtos::buffer<rtos::packet_data<SensorsHeader, SensorValue>>& m_input_buffer;
         rtos::SharedMem<buffer_packets> m_input_buffer;
         
 };
