@@ -118,14 +118,14 @@ class SensorDataTask : public rtos::Task<char *>{
         SensorsHeader* m_header;
 };
 
-class MainThread : public rtos::Thread<char*>{
-    public:
-        MainThread(int id, rtos::Task<char *>* task) : rtos::Thread<char *>{task, false, SIGUSR2}, m_id{id}{
-            this->start();
-        }
+//class MainThread : public rtos::Thread<char*>{
+//    public:
+//        MainThread(int id, rtos::Task<char *>* task) : rtos::Thread<char *>{task, false, SIGUSR2}, m_id{id}{
+//            this->start();
+//        }
 
-    private:
-        int m_id;
-};
+//    private:
+//        int m_id;
+//};
 
 #endif // CONSUMER_H

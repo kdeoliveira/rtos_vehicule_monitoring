@@ -23,8 +23,9 @@
 
 #include "defintion.hpp"
 
+// #define TERMINAL
 
-/*!
+/**
  * @brief Signal handler called on interruption. Attempts to gracefully stop all running processes and unlinking any opened shared memory segment
  * 
  * @param signum 
@@ -35,17 +36,21 @@ void signal_handler(int signum){
         std::cout << "=======attempting to gracefully stop current process=======" << std::endl;
     #endif
 
+    /**
+     * @brief Removes all named sempahores and shared memory used by this process
+     * 
+     */
     sem_unlink("sem_modification");
     sem_unlink("sem_access");
     shm_unlink("m_buffer_input");
-    shm_unlink("m_input_buffer_clock");
-
-
-
-    
+    shm_unlink("m_input_buffer_clock"); 
 
     struct rlimit limit_fd;
     
+    /**
+     * @brief Attemps to close all file descriptors opened by this process
+     * 
+     */
     if (getrlimit(RLIMIT_NOFILE, &limit_fd) != 0){
         perror("getrlimit");
         exit(EXIT_FAILURE);
@@ -69,11 +74,12 @@ void signal_handler(int signum){
 /**
  * @brief Process manager responsible for starting the Consumer and Producer tasks
  * Each task is run by a new child process:
- * Consumer: /src/consumer.cpp or /gui/main.cpp
+ * Consumer: 
+ *      #ifdef TERMINAL : /src/consumer.cpp
+ *      #else           : /gui/main.cpp
  * Producer: /src/producer.cpp
  * 
  * A second child process is created exclusively for the Timer
- * Define TERMINAL if consumer is to be outputted into the terminal instead
  */
 int main(int argc, char *argv[])
 {
@@ -84,13 +90,13 @@ int main(int argc, char *argv[])
     //Gracefully closing all opened fds if SIGINT signal event occurs
     signal(SIGINT, signal_handler);
 
-    /*!
-     * @brief Mask all signals used by this application
-     * 
+    /**
+     * @brief Mask all signals used by this applications
+     * Since by default child processes inherits copies of parent's file descriptors and signal mask, call executed at the beginning of the main function
      */
     rtos::util::mask_signal(SIGUSR1);
     rtos::util::mask_signal(SIGUSR2);
-    // rtos::util::mask_signal(SIGALRM);
+    
 
 
     puts("Application starting...");
@@ -109,7 +115,10 @@ int main(int argc, char *argv[])
         getcwd(buf_temp, PATH_MAX + 1);
     }
 
-    
+    /**
+     * @brief Creates a new pipe that will be used by the dataset file and the producer process
+     * 
+     */
     int fd[2];
     if (pipe(fd) < 0)
     {
@@ -118,8 +127,6 @@ int main(int argc, char *argv[])
     }
 
     pid_t pid = fork();
-
-
 
     if (pid == 0)
     {
@@ -147,7 +154,7 @@ int main(int argc, char *argv[])
                     #ifdef _QNX_x86_64
                         path += "/gui/qnx/debug/gui";
                     #else
-                        path += "/gui/x64/debug/gui";
+                        path += "/gui/x64/release/gui";
                     #endif
                 #else
                     #ifdef _QNX_x86_64
@@ -198,7 +205,11 @@ int main(int argc, char *argv[])
 
     else
     {
-
+        
+        /**
+         * @brief Shared data instance used by the timer
+         * This provides access to the shared data that defines the current period of the timer
+         */
         rtos::SharedMem<buffer_clock> shared_mem_timer("m_input_buffer_clock");
 
         shared_mem_timer->current_val_seconds = 1;
@@ -208,7 +219,6 @@ int main(int argc, char *argv[])
         rtos::Timer m_timer{CLOCK_MONOTONIC, SIGUSR2};
 
 
-        // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
         if (m_timer.start(1, 0) < 0)
             perror("timer_settime");
 
@@ -225,14 +235,20 @@ int main(int argc, char *argv[])
                 #endif
 
             }
-            //Signal parent process every cycle
-            //to wake-up the Scheduler
+            /**
+             * @brief Signal parent process every cycle with SIGUSR1
+             */
             killpg( getpgid(pid) , SIGUSR1);
         });
 
 
         m_timer.notify(nullptr);
 
+        /**
+         * @brief Waits for the termination of child processes.
+         * If unsuccessful, output error message
+         * 
+         */
         int status;
         if (waitpid(pid, &status, 0) > 0)
         {
