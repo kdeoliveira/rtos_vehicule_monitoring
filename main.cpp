@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-// #define TERMINAL
+
 
 struct _buffer_clock{
     int current_val_seconds = 1;
@@ -31,7 +31,9 @@ struct _buffer_clock{
 typedef struct _buffer_clock buffer_clock;
 
 
-/**
+
+
+/*!
  * @brief Signal handler called on interruption. Attempts to gracefully stop all running processes and unlinking any opened shared memory segment
  * 
  * @param signum 
@@ -73,17 +75,14 @@ void signal_handler(int signum){
 
 
 
-// ===============
-// MAIN
-// ===============
-
-/**
+/*!
  * Process manager responsible for starting the Consumer and Producer tasks
  * Each task is run by a new child process:
  * Consumer: /src/consumer.cpp or /gui/main.cpp
  * Producer: /src/producer.cpp
  * 
  * A second child process is created exclusively for the Timer
+ * Define TERMINAL if consumer is to be outputted into the terminal instead
  */
 int main(int argc, char *argv[])
 {
@@ -94,7 +93,7 @@ int main(int argc, char *argv[])
     //Gracefully closing all opened fds if SIGINT signal event occurs
     signal(SIGINT, signal_handler);
 
-    /**
+    /*!
      * @brief Mask all signals used by this application
      * 
      */
@@ -106,7 +105,7 @@ int main(int argc, char *argv[])
     puts("Application starting...");
 
 
-    /**
+    /*!
      * @brief Gets the current working directory
      * 
      */
@@ -121,15 +120,15 @@ int main(int argc, char *argv[])
 
     
     int fd[2];
+    if (pipe(fd) < 0)
+    {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
 
     pid_t pid = fork();
 
 
-        if (pipe(fd) < 0)
-        {
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
 
     if (pid == 0)
     {
@@ -219,7 +218,7 @@ int main(int argc, char *argv[])
 
 
         // if (m_timer.start(0, rtos::Timer::MILLION*25) < 0)
-        if (m_timer.start(shared_mem_timer->current_val_seconds, shared_mem_timer->current_val_nanoseconds) < 0)
+        if (m_timer.start(1, 0) < 0)
             perror("timer_settime");
 
         m_timer.onNotify([&](void *val){

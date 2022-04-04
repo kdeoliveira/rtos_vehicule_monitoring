@@ -2,6 +2,11 @@
 #include <map>
 #include <ostream>
 
+
+#include <rtos_packet.hpp>
+#include <rtos_buffer.hpp>
+#include <semaphore.h>
+
 struct period_task
 {
     period_task(){}
@@ -167,9 +172,6 @@ struct or_type{
 
 // BUFFERING IN/OUT PACKETS PLUS HEADERS
 
-#include <rtos_packet.hpp>
-#include <rtos_buffer.hpp>
-#include <semaphore.h>
 
 
  struct buffer_packet{
@@ -182,6 +184,6 @@ struct or_type{
 
  typedef struct buffer_packet buffer_packets;
 
-#include <chrono>
 
-using namespace std::chrono;
+
+

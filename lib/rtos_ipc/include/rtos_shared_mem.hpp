@@ -12,7 +12,7 @@ namespace rtos
 {
 
     /**
-     * @brief Object that represents an object stored in shared memory segment
+     * @brief POSIX shared memory API allows processes to communicate information by sharing a region of memory.
      * 
      * @tparam T type of object that will be stored
      */
@@ -22,7 +22,7 @@ namespace rtos
 
     public:
         /**
-         * @brief Construct a new Shared Mem object
+         * @brief Construct a new shared memory segment and creates appropriate mapping in the virtual address space
          * 
          * @param name name of the shared memory instance created
          */
@@ -58,7 +58,7 @@ namespace rtos
         }
 
         /**
-         * @brief Access to the object stored in memory
+         * @brief Access to the object stored in shared memory
          * 
          * @return T* pointer to the object's value
          */
@@ -80,7 +80,5 @@ namespace rtos
         T* m_object;
         int m_fd;
         const char *m_name;
-
-        // sem_t *m_semaphore;
     };
 }

@@ -31,7 +31,7 @@ namespace rtos
 
     public:
     /**
-     * @brief Construct a new pipe with either new file descriptors or redirecting the READ or WRITE end of the pipe to another file descriptor
+     * @brief Construct a new pipe with either new I/O file descriptors or by redirecting the READ or WRITE end of the pipe to another file descriptor
      * 
      * @param _mode PipeMode
      */
@@ -47,8 +47,8 @@ namespace rtos
             this->fd_stream = nullptr;
         }
         /**
-         * @brief Construct a new pipe with either new file descriptors or redirecting the READ or WRITE end of the pipe to another file descriptor
-         * 
+         * @brief Construct a new pipe by redirecting the READ or WRITE end of the pipe to another file descriptor
+         * Note that read/write mode is not accepted
          * @param _mode PipeMode
          */
         PipeManager(int _fd[2], const PipeMode &_mode, const PipeFlag &_flags) : mode{_mode} , flags{_flags}
@@ -58,7 +58,6 @@ namespace rtos
             }
             if (_mode == PipeMode::READ)
             {
-                // dup2(_fd, this->fd[0]);
                 close(_fd[1]);
                 this->fd[0] = _fd[0];
                 if(_flags == PipeFlag::REDIRECT){
@@ -90,6 +89,11 @@ namespace rtos
             close(this->fd[1]);
         }
 
+        /**
+         * @brief Closes current active file descriptor
+         * 
+         * @param mode PipeMode
+         */
         void close_fd(PipeMode mode)
         {
             if (mode == PipeMode::READ)
@@ -112,10 +116,10 @@ namespace rtos
         }
 
         /**
-         * @brief Reads one buffer line at the time of the pipe up to the size of the type T passed
+         * @brief Reads one buffer line at the time of the pipe up to the size of type T
          * 
-         * @tparam T 
-         * @return int returns 0 if successful or -1 if error occurred
+         * @tparam T Type to be read from the pipe
+         * @return int Returns 0 if successful or -1 if error occurred
          */
         template <typename T>
         int read_pipe()

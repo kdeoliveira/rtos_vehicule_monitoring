@@ -18,12 +18,18 @@ namespace rtos{
                 delete this->m_queue;
             }
 
+            /**
+             * @brief Construct a new algorithm object which can hold up to _sz tasks
+             * 
+             * @param _sz Number of tasks managed by this algorithm
+             */
             algorithm(const int _sz) : sz{_sz}{
                 if(_sz < 0) throw "Invalid size argument";
 
                 this->m_queue = new T[sz];
                 m_index = 0;
             }
+            
             /**
              * @brief Virtual function that is called by the Scheduler
              * Algorithm should be implemented here

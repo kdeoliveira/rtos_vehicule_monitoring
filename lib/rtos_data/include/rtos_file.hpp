@@ -14,7 +14,8 @@ namespace rtos
 {
     /**
      * @brief Input stream for files. Alternative C implementation of ifstream provided by the std library
-     * 
+     * File buffering is set _IOLBF.
+     * On output, data is written when a newline character is inserted into the stream or when the buffer is full
      */
     class InputFile
     {
@@ -109,10 +110,6 @@ namespace rtos
             return this->line_stream;
         }
 
-        // std::pair<char*, float>* get_values(){
-        //     return this->values.get();
-        // }
-
         /**
          * @brief Get current line number
          * 
@@ -140,22 +137,9 @@ namespace rtos
             return this->position;
         }
 
-        // char * begin(InputFile &x){
-        //     return x.size() ? x.values[0] : nullptr;
-        // }
-        // std::pair<char *, float>* begin(){
-        //     return this->size()  ? *this->values.get() : nullptr;
-        // }
-        // std::pair<char *, float>* end(){
-        //     return this->values.get()[0] + this->size();
-        // }
-
-        // char *end(InputFile &x){
-        //     return x.values[0] + x.size();
-        // }
 
         /**
-         * @brief Get a file descriptor for the stream
+         * @brief Get a file descriptor for the input stream
          * 
          * @return int 
          */

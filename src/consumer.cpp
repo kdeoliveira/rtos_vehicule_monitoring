@@ -50,25 +50,6 @@ public:
     }
 };
 
-
-class FuelConsumption : public rtos::Task<char *>{
-    public:
-        FuelConsumption(const char* shared_name) : m_input_buffer{shared_name}{}
-        void run() override{
-
-            std::cout << this->m_input_buffer->buffer[SensorsHeader::Fuel_consumption].header.id << ": " << this->m_input_buffer->buffer->payload << std::endl;
-        }
-
-        ~FuelConsumption(){
-        }
-
-    private:
-        std::mutex m_mx;
-        rtos::SharedMem<buffer_packets> m_input_buffer;
-        
-};
-
-
 class SensorDataTask : public rtos::Task<char *>{
     public:
         SensorDataTask(const char* shared_name, u_int8_t header) : m_input_buffer{shared_name}, m_header{new SensorsHeader{(SensorsHeader)header} }{

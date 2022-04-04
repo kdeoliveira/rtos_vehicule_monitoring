@@ -19,7 +19,7 @@ namespace rtos{
     };
 
     /**
-     * @brief POSIX Thread class
+     * @brief POSIX Thread class implementation
      * 
      * @tparam T 
      */
@@ -86,21 +86,30 @@ namespace rtos{
                 
             }
 
+            /**
+             * @brief Waits for termination of this thread
+             * 
+             */
             void join(){
                 if(!detached){
                     int status = pthread_join(this->m_thread_id, nullptr);
                     if(status) throw "Error when joining thread";
                 }
             }
+
+            /**
+             * @brief Get the thread id
+             * 
+             * @return pthread_t 
+             */
             pthread_t get_thread_id(){
                 return this->m_thread_id;
             }
+
+            
             bool is_completed(){
                 return this->completed;
             }
-            // T getResult(){
-            //     return (this->m_result);
-            // }
 
         private:
             pthread_t m_thread_id;

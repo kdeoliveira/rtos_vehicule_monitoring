@@ -14,17 +14,22 @@ namespace rtos{
         public:
             buffer() : m_buf{new T{}} {}
 
+            /**
+             * @brief Creates a new buffer of size _sz
+             * 
+             * @param _sz Size of array
+             */
             buffer(int _sz) : m_sz{_sz}{
                 if(this->m_sz < 0) throw "Out of range";
                 m_buf = new T[this->m_sz];
             }
 
 
-            buffer(const buffer& in) : m_sz{in.m_sz}{ //copy constructor
+            buffer(const buffer& in) : m_sz{in.m_sz}{ 
                 std::copy(in.m_buf, in.m_buf + this->m_sz, this->m_buf);
             }
 
-            buffer(buffer&& in) noexcept : buffer(){ //move constructor
+            buffer(buffer&& in) noexcept : buffer(){ 
                 swap(*this, in);
             }
 
@@ -68,7 +73,6 @@ namespace rtos{
 
         private:
             friend void swap(buffer& first, buffer& second){
-                //ADT for std lib swap
                 using std::swap;
                 swap(first.m_buf, second.m_buf);
                 swap(first.m_sz, second.m_sz);

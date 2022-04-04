@@ -16,7 +16,7 @@
 #define gettid() ((pid_t)syscall(SYS_gettid))
 
 namespace rtos{
-    /**
+    /*!
      * @brief Counter for timer period
      */
     struct timer_cycle{
@@ -94,9 +94,9 @@ namespace rtos{
             /**
              * @brief Sets the timer to the given value and starts the timer
              * 
-             * @param period_seconds 
-             * @param period_nanoseconds 
-             * @return int 
+             * @param period_seconds Seconds
+             * @param period_nanoseconds Nano seconds
+             * @return int Returns 0 if successful; otherwise returns -1
              */
             int start(int period_seconds, int period_nanoseconds){
                 m_timerspec.it_value.tv_sec = period_seconds;
@@ -120,30 +120,17 @@ namespace rtos{
                 
                 
                 while(true){
-                    // sigval val;
-                    // val.sival_ptr = _args;
-
-
                     sigwaitinfo(&set, &info);
-
-
-                    // if( sigqueue(_pid, this->m_sigevent->sigev_signo, val) < 0 ){
-                    //     perror("sigqueue");
-                    //     throw "Error when sending SIGNAL";
-                    // }
-
                     
                     if(this->callback != nullptr){
                         (*this->callback)(_args);
                         
                     }
-                    
-
                 }
             }
 
             /**
-             * @brief Register a callback function that will invoked on every clock signal
+             * @brief Register a callback function that will be invoked on every clock signal
              * 
              * @tparam T 
              * @param _callback 

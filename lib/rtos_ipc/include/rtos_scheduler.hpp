@@ -10,7 +10,7 @@ namespace rtos{
     
     /**
      * @brief Context interface that implements the scheduler run by a given process
-     * The scheduler is responsible for "waking-up" any given thread at a given moment.
+     * The scheduler is responsible for "waking-up" threads at a given moment.
      * Note that threads receiving signals from the Scheduler should have the appropriate signal masked
      * @tparam T type of task
      */
@@ -64,7 +64,11 @@ namespace rtos{
             // }
 
 
-            //Dispatch task though _sig signal
+            /**
+             * @brief Function responsible for executing the algorihtm interface at every clock cycle
+             * 
+             * @param _sig Signal received by this scheduler
+             */
             void dispatch(const int _sig){
                 
                 siginfo_t info;
@@ -96,7 +100,6 @@ namespace rtos{
 
 
         private:
-            //Implement thread safe queue
             std::shared_ptr<algorithm<T>> m_algorithm;
             timer_cycle m_cycles;
             const int m_signum;

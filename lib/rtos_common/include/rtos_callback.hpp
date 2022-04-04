@@ -28,9 +28,9 @@ struct Wrapper : public Base {
 };
 
 /**
- * @brief Wrapper for callback functions. Returns an equivalent template for predicate
+ * @brief Wrapper for callback functions. Returns an equivalent template for predicates
  * Objects passed to this wrapper must be callable and override the operator() function
- * Only 1 argument is passed to the argument list
+ * Accepts only 1 argument
  */
 struct Callback{
     

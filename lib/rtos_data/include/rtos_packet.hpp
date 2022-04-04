@@ -61,15 +61,6 @@ namespace rtos{
         }
 
         friend std::ostream& operator << (std::ostream& os, const packet_data<T, R>& data){
-            // if(std::is_union<std::remove_const<decltype(data.payload)>>::value){
-                
-            //     return os;
-            //     // os << "id: " << data.header.id << " | " << "payload: " << static_cast<typeid(arg)>(data.payload);
-            // }else{
-
-            //     os << "id: " << data.header.id << " | " << "payload: " << data.payload;
-            // }
-
                 os << "{ " << data.header.id << ":" <<  data.payload <<" }";
 
             return os;
@@ -86,10 +77,6 @@ namespace rtos{
         template<typename X>
         friend packet_data<T, R>& operator << (packet_data<T, R>& data,const X& in){
             static_assert(std::is_standard_layout<X>::value, "Template is too complex");
-
-            // size_t sz = data.payload.size();
-            // data.payload.resize(data.payload.size() + sizeof(X));
-
             std::memcpy(
                 &data.payload, &in, sizeof(X)
             );
