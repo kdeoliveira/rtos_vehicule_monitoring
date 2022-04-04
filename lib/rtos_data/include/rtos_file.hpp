@@ -22,7 +22,7 @@ namespace rtos
     public:
         InputFile() = default;
         /**
-         * @brief Construct a new Input File object
+         * @brief Construct a new Input File object and creates a new file descriptor for that stream
          * 
          * @param filename absolute path of file
          */

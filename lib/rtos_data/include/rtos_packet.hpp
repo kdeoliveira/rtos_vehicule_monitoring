@@ -11,7 +11,7 @@ namespace rtos{
     /**
      * @brief Header of a packet defined by an ID and containing the current size of the packet 
      * 
-     * @tparam T 
+     * @tparam T type of ID
      */
     template<typename T>
     struct packet_header{
@@ -21,7 +21,7 @@ namespace rtos{
         /**
          * @brief Assigns the ID of this header
          * 
-         * @tparam X 
+         * @tparam X type of ID
          * @param arg 
          * @return packet_header<T>& 
          */

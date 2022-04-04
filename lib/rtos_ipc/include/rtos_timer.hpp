@@ -53,7 +53,8 @@ namespace rtos{
     };
 
     /**
-     * @brief Creates a new timer for this process
+     * @brief Creates a new POSIX interval timer which upon expiration throws a signal to this process.
+     * This same objects then waits for the above signal to be pending before executing a registered callback function
      * 
      */
     class Timer{
@@ -63,7 +64,7 @@ namespace rtos{
             /**
              * @brief Construct a new Timer object
              * 
-             * @param clock_type 
+             * @param clock_type specifies the clock that the new timer uses to measure time
              * @param signum 
              */
             Timer(clockid_t clock_type, int signum){
@@ -108,9 +109,9 @@ namespace rtos{
             }
 
             /**
-             * @brief Callback function called on every clock signal
+             * @brief Callback function called when signal SIGNUM becomes pending for this process
              * 
-             * @param _args 
+             * @param _args Argument passsed to the callback function
              */
             void notify(void* _args){
                 siginfo_t info;
@@ -132,8 +133,8 @@ namespace rtos{
             /**
              * @brief Register a callback function that will be invoked on every clock signal
              * 
-             * @tparam T 
-             * @param _callback 
+             * @tparam T Generic type of callback function
+             * @param _callback Predicate or callback functoin
              */
             template<typename T>
             void onNotify(T _callback){

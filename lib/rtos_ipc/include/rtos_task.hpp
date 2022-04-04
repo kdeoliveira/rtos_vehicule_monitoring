@@ -36,7 +36,7 @@ namespace rtos{
              * @brief Construct a new Thread object that will execute a given task
              * 
              * @param run Runnable instance
-             * @param isDetached 
+             * @param isDetached Set thread as detachable
              * @param signum Signal which this thread will be sensitive to
              */
             Thread(Task<T>* run, bool isDetached, const int signum) : detached{isDetached}, m_signum{signum}{
@@ -106,7 +106,11 @@ namespace rtos{
                 return this->m_thread_id;
             }
 
-            
+            /**
+             * @brief Checks if the runnable task has finished execution
+             * 
+             * @return bool 
+             */
             bool is_completed(){
                 return this->completed;
             }

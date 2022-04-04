@@ -7,7 +7,7 @@ namespace rtos{
     /**
      * @brief Thread safe buffer STL container using traditional raw arrays
      * 
-     * @tparam T 
+     * @tparam T type of this container
      */
     template<typename T>
     class buffer : public thread_safe<T>{
@@ -24,7 +24,7 @@ namespace rtos{
                 m_buf = new T[this->m_sz];
             }
 
-
+            
             buffer(const buffer& in) : m_sz{in.m_sz}{ 
                 std::copy(in.m_buf, in.m_buf + this->m_sz, this->m_buf);
             }
@@ -47,24 +47,31 @@ namespace rtos{
             
 
 
-
+            /// @private
             ~buffer(){
                 delete[] m_buf;
             }
 
+            /// @private
             T* begin(){
                 return this->m_sz ? &this->m_buf[0] : nullptr;
             }
 
+            /// @private
             T* end(){
                 return (&this->m_buf[0]) + this->m_sz;
             }
 
+            /**
+             * @brief Returns the current size of this container
+             * 
+             * @return constexpr int 
+             */
             constexpr int size() const{
                 return this->m_sz;
             }
 
-            
+            /// @private
             T& at(const int i){
                 if(i < 0 || i >= this->m_sz) throw "Out of range";
 
@@ -80,12 +87,13 @@ namespace rtos{
 
         protected:
 
-
+            /// @private
             void __add(const T& item, const int i) override{
                 if(i < 0 || i >= this->m_sz) throw "Out of range";
                 this->m_buf[i] = item;
             }
 
+            /// @private
             T& __pop(const int i) override{
                 if(i < 0 || i >= this->m_sz) throw "Out of range";
                 T* out = &this->m_buf[i];
@@ -93,22 +101,11 @@ namespace rtos{
                 return *out;
             }
 
+            /// @private
             T& __access(int i) override{
                 if(i < 0 || i >= this->m_sz) throw "Out of range";
                 return this->m_buf[i];
             }
-
-            // T& operator[](int i){
-            //     if(i < 0 || i >= this->m_sz) throw "Out of range";
-            //     return this->m_buf[i];
-            // }
-
-            
-
-            
-
-
-
 
         private:
             int m_sz;

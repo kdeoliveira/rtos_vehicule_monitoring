@@ -132,9 +132,6 @@ union SensorData{
                     os << data.val_c;
                 else
                     os << data.val_n;
-
-                
-
                 return os;
             }
 };
@@ -183,7 +180,4 @@ struct or_type{
  };
 
  typedef struct buffer_packet buffer_packets;
-
-
-
 

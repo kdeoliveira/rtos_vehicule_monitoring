@@ -9,8 +9,8 @@
 namespace rtos{
     
     /**
-     * @brief Context interface that implements the scheduler run by a given process
-     * The scheduler is responsible for "waking-up" threads at a given moment.
+     * @brief Context interface that implements a scheduler
+     * The scheduler is responsible for "waking-up" threads at any given moment.
      * Note that threads receiving signals from the Scheduler should have the appropriate signal masked
      * @tparam T type of task
      */
@@ -78,14 +78,7 @@ namespace rtos{
                 
                 while(true){
                     if(this->m_cycles.cycles < 0) return;
-
-
-                    
-                    
                     sigwaitinfo(&set, &info);
-
-
-
                     if(this->m_algorithm != nullptr){
 
                         this->m_algorithm->run(&this->m_cycles, _sig);

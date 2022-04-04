@@ -40,6 +40,11 @@ namespace rtos{
              */
             virtual void * run(timer_cycle* _timer_cycle, const int& _signmum) const = 0;
 
+            /**
+             * @brief Returns a pointer to the set of tasks maanaged by this algorithm
+             * 
+             * @return T* pointer to set of tasks
+             */
             T* get_queue(){
                 return this->m_queue;
             }

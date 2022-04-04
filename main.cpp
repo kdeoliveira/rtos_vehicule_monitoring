@@ -21,16 +21,7 @@
 
 #include <string.h>
 
-
-
-struct _buffer_clock{
-    int current_val_seconds = 1;
-    int current_val_nanoseconds = 0;
-};
-
-typedef struct _buffer_clock buffer_clock;
-
-
+#include "defintion.hpp"
 
 
 /*!
@@ -75,8 +66,8 @@ void signal_handler(int signum){
 
 
 
-/*!
- * Process manager responsible for starting the Consumer and Producer tasks
+/**
+ * @brief Process manager responsible for starting the Consumer and Producer tasks
  * Each task is run by a new child process:
  * Consumer: /src/consumer.cpp or /gui/main.cpp
  * Producer: /src/producer.cpp

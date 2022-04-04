@@ -18,10 +18,6 @@ void InputData::init(const char* name){
     m_thread = new MainThread(1, m_reader);
     connect(m_reader, &Reader::bufferRead, this, &InputData::readPipe);
     connect(m_reader, &Reader::currentStatus, this, &InputData::getStatus);
-
-
-
-
 }
 
 
