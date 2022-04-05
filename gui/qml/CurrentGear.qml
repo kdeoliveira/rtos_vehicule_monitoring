@@ -43,7 +43,7 @@ Item {
             PropertyChanges {
 
                 target: image
-                source: "qrc:/images/Gear1.png"
+                source: "../images/Gear1.png"
             }
 
             PropertyChanges {
@@ -56,7 +56,7 @@ Item {
 
             PropertyChanges {
                 target: image
-                source: "qrc:/images/Gear2.png"
+                source: "../images/Gear2.png"
             }
 
             PropertyChanges {
@@ -69,7 +69,7 @@ Item {
 
             PropertyChanges {
                 target: image
-                source: "qrc:/images/Gear3.png"
+                source: "../images/Gear3.png"
             }
 
             PropertyChanges {
@@ -82,7 +82,7 @@ Item {
 
             PropertyChanges {
                 target: image
-                source: "qrc:/images/Gear4.png"
+                source: "../images/Gear4.png"
             }
 
             PropertyChanges {
@@ -95,7 +95,7 @@ Item {
 
             PropertyChanges {
                 target: image
-                source: "qrc:/images/Gear5.png"
+                source: "../images/Gear5.png"
             }
 
             PropertyChanges {
@@ -107,7 +107,7 @@ Item {
             name: "Gear6"
             PropertyChanges {
                 target: image
-                source: "qrc:/images/Gear6.png"
+                source: "../images/Gear6.png"
             }
 
             PropertyChanges {

@@ -79,21 +79,23 @@ class Producer : public rtos::Task<char *>{
 
         }
         
-        while( (res = strtok(nullptr, ",")) != nullptr){
-            ++m_arg_col;
+        if(m_arg_row % 5 == 0)
+            while( (res = strtok(nullptr, ",")) != nullptr){
+                ++m_arg_col;
 
-            if(m_arg_row > 0){
-                m_packet = SensorsHeader(m_arg_col);
-                
-                if(m_arg_col == 52){
-                    m_packet << static_cast<float>(*res);
-                }else{
-                    m_packet << (float) atof(res);
+                if(m_arg_row > 0){
+                    m_packet = SensorsHeader(m_arg_col);
+                    
+                    if(m_arg_col == 52){
+                        m_packet << static_cast<float>(*res);
+                    }else{
+                        m_packet << (float) atof(res);
+                    }
+                    
+                    this->m_input_buffer->buffer[m_arg_col] = m_packet;
+
                 }
-                this->m_input_buffer->buffer[m_arg_col] = m_packet;
-
             }
-        }
 
         
         #ifdef DEBUG
