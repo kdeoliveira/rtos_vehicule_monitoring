@@ -198,15 +198,24 @@ public:
         this->push(task);
     }
 
+    /**
+     * @brief Main scheduler used by the processes
+     * It a simple clock-driven scheduler where each task is dispatched at a given period
+     * Order of priority is not completed and solely based on the position of the task in the m_queue array
+     * At each clock cycle of the timer, the Scheduler will verify if any task is to be disaptched by perofrming a simple search on the m_queue array.
+     * @code (_timer_cycle->cycles + 1) % this->m_queue[i].period == 0
+     * If a task is found, a pthread_kill sends a signal to that thread so it can be start executing
+     * 
+     * @param _timer_cycle Timer cycle
+     * @param _signmum Signal to be send to threads
+     * @return void* return value (optional)
+     */
     void *run(rtos::timer_cycle* _timer_cycle, const int &_signmum) const override
     {
 
         #ifdef DEBUG
             printf("[%s] Cycle: %u\n",name_of_scheduler,  _timer_cycle->cycles);
         #endif
-
-
-
 
             //kill thread by period value provided
             for(int i{0}; i < this->size() ; i++){

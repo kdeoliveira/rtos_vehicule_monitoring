@@ -63,6 +63,10 @@ Window {
     visible: true
     width: 1024
     height: 600
+    maximumWidth: root.width
+    maximumHeight: root.height
+    minimumHeight: root.height
+    minimumWidth: root.width
 
     color: "#161616"
 
@@ -75,6 +79,13 @@ Window {
     InputData {
         id: inputSource
     }
+    Image {
+        id: image
+        anchors.fill: parent
+        opacity: 0.5
+        fillMode: Image.PreserveAspectCrop
+        source: "qrc:/images/background.png"
+    }
 
     // Dashboards are typically in a landscape orientation, so we need to ensure
     // our height is never greater than our width.
@@ -85,49 +96,67 @@ Window {
         clip: true
         anchors.centerIn: parent
 
-        Row {
+        Item {
             id: gaugeRow
-            spacing: container.width * 0.02
-            anchors.centerIn: parent
+            width: 1000
+            height: 400
+            anchors.verticalCenterOffset: -75
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
-            TurnIndicator {
-                id: leftIndicator
+            CircularGauge {
+                id: speedometer
+                value: inputSource.speed
+                /*valueSource.kph*/
                 anchors.verticalCenter: parent.verticalCenter
+                maximumValue: 280
+                // We set the width to the height, because the height will always be
+                // the more limited factor. Also, all circular controls letterbox
+                // their contents to ensure that they remain circular. However, we
+                // don't want to extra space on the left and right of our gauges,
+                // because they're laid out horizontally, and that would create
+                // large horizontal gaps between gauges on wide screens.
                 width: height
-                height: container.height * 0.1 - gaugeRow.spacing
+                height: container.height * 0.5
+                anchors.horizontalCenter: parent.horizontalCenter
 
-                direction: Qt.LeftArrow
-                on: valueSource.turnSignal == Qt.LeftArrow
+                style: DashboardGaugeStyle {}
             }
 
-            Item {
-                id: element1
-                width: height
+            CircularGauge {
+                id: tachometer
+                width: 140
                 height: 140
+                anchors.verticalCenterOffset: 0
+                anchors.right: parent.right
+                anchors.rightMargin: 100
+                value: inputSource.rpm / 1000
+                maximumValue: 8
                 anchors.verticalCenter: parent.verticalCenter
 
-                CircularGauge {
-                    id: fuelGauge
-                    value: valueSource.fuel
-                    maximumValue: 1
-                    y: parent.height / 2 - height / 2 - container.height * 0.01
-                    width: parent.width
-                    height: parent.height * 0.7
+                style: TachometerStyle {
+                    tachValue: (inputSource.rpm).toFixed(0)
+                }
+            }
+            Item {
+                id: element1
+                width: 140
+                height: 200
+                anchors.verticalCenterOffset: 50
+                anchors.left: parent.left
+                anchors.leftMargin: 100
+                anchors.verticalCenter: parent.verticalCenter
 
-                    style: IconGaugeStyle {
-                        id: fuelGaugeStyle
-
-                        icon: "qrc:/images/fuel-icon.png"
-                        minWarningColor: Qt.rgba(0.5, 0, 0, 1)
-
-                        tickmarkLabel: Text {
-                            color: "white"
-                            visible: styleData.value === 0
-                                     || styleData.value === 1
-                            font.pixelSize: fuelGaugeStyle.toPixels(0.225)
-                            text: styleData.value === 0 ? "E" : (styleData.value === 1 ? "F" : "")
-                        }
-                    }
+                Text {
+                    id: element3
+                    x: 12
+                    y: 87
+                    color: "#dfdfe4"
+                    text: qsTr("Coolant Temperature")
+                    anchors.verticalCenterOffset: 25
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.pixelSize: 12
                 }
 
                 CircularGauge {
@@ -137,7 +166,9 @@ Window {
                     maximumValue: 1
                     width: parent.width
                     height: parent.height * 0.7
-                    y: parent.height / 2 + container.height * 0.01
+                    anchors.verticalCenterOffset: 0
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     style: IconGaugeStyle {
                         id: tempGaugeStyle
@@ -154,90 +185,105 @@ Window {
                         }
                     }
                 }
-
-                Text {
-                    id: fuel_consumtpion
-                    x: 105
-                    y: 122
-                    color: "#ffffff"
-                    text: inputSource.fuel_consumption.toFixed(2)
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: -20
-                    anchors.right: parent.right
-                    anchors.rightMargin: 0
-                    font.family: "DejaVu Sans"
-                    styleColor: "#f7f7f7"
-                    horizontalAlignment: Text.AlignRight
-                    font.pixelSize: 12
-                }
-
-                Label {
-                    id: label_fuel_consumtpion
-                    y: 122
-                    color: "#ffffff"
-                    text: "Fuel Consumption:"
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: -20
-                    anchors.left: parent.left
-                    anchors.leftMargin: -30
-                    font.pointSize: 8
-                    font.family: "DejaVu Sans"
-                }
             }
 
-            CircularGauge {
-                id: speedometer
-                value: inputSource.speed
-                /*valueSource.kph*/
-                anchors.verticalCenter: parent.verticalCenter
-                maximumValue: 280
-                // We set the width to the height, because the height will always be
-                // the more limited factor. Also, all circular controls letterbox
-                // their contents to ensure that they remain circular. However, we
-                // don't want to extra space on the left and right of our gauges,
-                // because they're laid out horizontally, and that would create
-                // large horizontal gaps between gauges on wide screens.
-                width: height
-                height: container.height * 0.5
-
-                style: DashboardGaugeStyle {}
-            }
-
-            CircularGauge {
-                id: tachometer
-                width: height
-                height: container.height * 0.25 - gaugeRow.spacing
-                value: inputSource.rpm / 1000
-                maximumValue: 8
-                anchors.verticalCenter: parent.verticalCenter
-
-                style: TachometerStyle {
-                    gearValue: inputSource.gear
+            CurrentGear {
+                function setState(arg) {
+                    switch (arg) {
+                    case 0:
+                        return "base state"
+                    case 1:
+                        return "Gear2"
+                    case 2:
+                        return "Gear3"
+                    case 3:
+                        return "Gear4"
+                    case 4:
+                        return "Gear5"
+                    case 5:
+                        return "Gear6"
+                    case 14:
+                        return "base state"
+                    default:
+                        return "base state"
+                    }
                 }
+
+                id: currentGear
+                x: 793
+                y: 276
+                width: 75
+                height: 125
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 0
+                anchors.right: parent.right
+                anchors.rightMargin: 133
+                state: setState(inputSource.gear)
+            }
+        }
+
+        Item {
+            id: fuel_consumption_items
+            x: 362
+            y: 404
+            width: 300
+            height: 150
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 25
+
+            Gauge {
+                id: gauge
+                x: 119
+                y: -82
+                height: 238
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                rotation: 90
+                maximumValue: 100
+                value: inputSource.fuel_consumption / 100
             }
 
-            TurnIndicator {
-                id: rightIndicator
-                anchors.verticalCenter: parent.verticalCenter
-                width: height
-                height: container.height * 0.1 - gaugeRow.spacing
+            Text {
+                id: fuel_consumtpion
+                x: 16
+                y: 91
+                color: "#ffffff"
+                text: inputSource.fuel_consumption.toFixed(2)
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                font.family: "DejaVu Sans"
+                styleColor: "#f7f7f7"
+                horizontalAlignment: Text.AlignLeft
+                font.pixelSize: 12
+            }
 
-                direction: Qt.RightArrow
-                on: valueSource.turnSignal == Qt.RightArrow
+            Label {
+                id: label_fuel_consumtpion
+                x: 83
+                y: 72
+                color: "#ffffff"
+                text: "Fuel Consumption x100:"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 25
+                font.pointSize: 8
+                font.family: "DejaVu Sans"
             }
         }
 
         Row {
             id: statusRow
-            x: 186
-            width: 250
+            width: 100
             height: 50
+            anchors.left: parent.left
+            anchors.leftMargin: 100
 
             layoutDirection: Qt.LeftToRight
             spacing: 10
             anchors.top: parent.top
             anchors.topMargin: 20
-            anchors.horizontalCenter: parent.horizontalCenter
 
             Label {
                 id: element
@@ -255,82 +301,71 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 active: inputSource.bufferStatus
             }
+        }
+
+        Item {
+            id: element4
+            width: 200
+            height: 125
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            anchors.right: parent.right
+            anchors.rightMargin: 100
+
+            Dial {
+                id: dial
+                x: 120
+                y: 0
+                width: 80
+                height: 80
+                stepSize: 1.0
+                from: 1
+                to: 1000
+                value: inputSource.dial
+                onValueChanged: inputSource.dial = dial.value
+                anchors.top: parent.top
+                anchors.topMargin: 8
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+            }
 
             Label {
-                id: labelCycles
-                height: 12
-                color: "#ffffff"
-                text: "Cycle:"
-                anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: 10
+                id: label
+                x: 34
+                y: 17
+
+                color: "#dfdfe4"
+                text: qsTr("Dial Period")
+                anchors.top: parent.top
+                anchors.topMargin: 25
+                anchors.right: parent.right
+                anchors.rightMargin: 100
+            }
+
+            Text {
+                id: element2
+                x: 34
+                y: 40
+                width: 74
+                height: 15
+                color: "#e6e1e1"
+                text: String(dial.value.toFixed(0)) + " ms"
                 horizontalAlignment: Text.AlignLeft
-            }
-
-            Tumbler {
-                id: tumbler
-                height: 100
-                wrap: false
+                anchors.right: parent.right
+                anchors.rightMargin: 100
+                anchors.top: parent.top
+                anchors.topMargin: 48
                 font.pixelSize: 12
-
-                enabled: false
-                hoverEnabled: false
-                wheelEnabled: false
-                clip: false
-                anchors.verticalCenter: parent.verticalCenter
-                model: 8
-                currentIndex: inputSource.gear
             }
-        }
-
-        Dial {
-            id: dial
-            x: 832
-            width: 80
-            height: 80
-            stepSize: 1.0
-            from: 1
-            to: 1000
-            value: inputSource.dial
-            onValueChanged: inputSource.dial = dial.value
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.right: parent.right
-            anchors.rightMargin: 8
-        }
-
-        Label {
-            id: label
-            x: 886
-
-            color: "#dfdfe4"
-            text: qsTr("Time Clock")
-            anchors.top: parent.top
-            anchors.topMargin: 25
-            anchors.right: parent.right
-            anchors.rightMargin: 100
-        }
-
-        Text {
-            id: element2
-            x: 886
-            width: 74
-            height: 15
-            color: "#e6e1e1"
-            text: String(dial.value.toFixed(0)) + " ms"
-            horizontalAlignment: Text.AlignLeft
-            anchors.right: parent.right
-            anchors.rightMargin: 100
-            anchors.top: parent.top
-            anchors.topMargin: 48
-            font.pixelSize: 12
         }
     }
 }
 
 /*##^##
 Designer {
-    D{i:13;anchors_y:122}D{i:14;anchors_x:"-38"}D{i:25;anchors_y:8}D{i:26;anchors_y:25}
-D{i:27;anchors_y:48}
+    D{i:3;anchors_height:100;anchors_width:100;anchors_x:0;anchors_y:0}D{i:7;anchors_y:122}
+D{i:17;anchors_x:12}D{i:18;anchors_x:186}D{i:19;anchors_x:186}D{i:16;anchors_x:12}
+D{i:20;anchors_x:186}
 }
 ##^##*/
 

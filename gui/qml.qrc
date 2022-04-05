@@ -6,10 +6,20 @@
         <file>qml/DashboardGaugeStyle.qml</file>
         <file>qml/IconGaugeStyle.qml</file>
         <file>qml/TachometerStyle.qml</file>
-        <file>qml/TurnIndicator.qml</file>
         <file>qml/ValueSource.qml</file>
         <file>images/fuel-icon.png</file>
         <file>images/temperature-icon.png</file>
         <file>qml/DejaVuSans.ttf</file>
+        <file>qml/temperature-icon.png</file>
+        <file>qml/fuel-icon.png</file>
+        <file>images/background.png</file>
+        <file>qml/CurrentGear.qml</file>
+        <file>images/Gear1.png</file>
+        <file>images/Gear2.png</file>
+        <file>images/Gear3.png</file>
+        <file>images/Gear4.png</file>
+        <file>images/Gear5.png</file>
+        <file>images/Gear6.png</file>
+        <file>images/GearNeutral.png</file>
     </qresource>
 </RCC>

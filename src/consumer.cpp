@@ -19,12 +19,6 @@ class SensorDataTask : public rtos::Task<char *>{
         }
 
         void run() override{
-
-            
-
-            
-
-
             if(this->m_input_buffer->buffer[*m_header].header.size > 0)
                 std::cout << "\033[1;32m" << this->m_input_buffer->buffer[*m_header].header.id << ": " << this->m_input_buffer->buffer[*m_header].payload << "\033[0m" << std::endl;
         }
@@ -75,7 +69,7 @@ int main(int argc, char *argv[])
         c_task[0].period = (uint8_t)1;
         c_task[0].thread_id = thread_consumer[0]->get_thread_id();
 
-        c_task[1].period = (uint8_t)1;
+        c_task[1].period = (uint8_t)2;
         c_task[1].thread_id = thread_consumer[1]->get_thread_id();
 
         algo->push(c_task[0], c_task[1]);

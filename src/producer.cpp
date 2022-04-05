@@ -19,13 +19,16 @@
 
 #include <cstring>
 
-#include <sys/syscall.h>
+#ifndef _QNX_x86_64
+    #include <sys/syscall.h>
 
-#ifndef SYS_gettid
-    #error "SYS_gettid unavailable on this system"
+    #ifndef SYS_gettid
+        #error "SYS_gettid unavailable on this system"
+    #endif
+
+    #define gettid() ((pid_t)syscall(SYS_gettid))
 #endif
 
-#define gettid() ((pid_t)syscall(SYS_gettid))
 
 
 
@@ -40,7 +43,7 @@
 class Producer : public rtos::Task<char *>{
     public:
     Producer(const char* shared_name, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{shared_name}{
-    // m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+    m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
 
     using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
 
@@ -60,12 +63,12 @@ class Producer : public rtos::Task<char *>{
 
         char* res;
 
-        // if( sem_wait(m_input_buffer->semaphore_access) == -1 ){
-        //     perror("sem_wait");
-        // }
+        if( sem_wait(m_input_buffer->semaphore_modification) == -1 ){
+            perror("sem_wait");
+        }
 
         res = strtok(arg, ",");
-
+        
         if(m_arg_row > 0){
             m_packet = SensorsHeader(m_arg_col);
             m_packet << (float) atof(res);
@@ -81,6 +84,7 @@ class Producer : public rtos::Task<char *>{
 
             if(m_arg_row > 0){
                 m_packet = SensorsHeader(m_arg_col);
+                
                 if(m_arg_col == 52){
                     m_packet << static_cast<float>(*res);
                 }else{
@@ -97,9 +101,9 @@ class Producer : public rtos::Task<char *>{
         #endif
         m_arg_row++;
 
-    // if( sem_post(m_input_buffer->semaphore_access) == -1 ){
-    //     perror("sem_post");
-    // }
+    if( sem_post(m_input_buffer->semaphore_modification) == -1 ){
+        perror("sem_post");
+    }
 
 
     });

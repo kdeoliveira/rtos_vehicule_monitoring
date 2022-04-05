@@ -7,13 +7,15 @@
 #include <vector>
 #include <errno.h>
 
-#include <sys/syscall.h>
+#ifndef _QNX_x86_64
+    #include <sys/syscall.h>
 
-#ifndef SYS_gettid
-    #error "SYS_gettid unavailable on this system"
+    #ifndef SYS_gettid
+        #error "SYS_gettid unavailable on this system"
+    #endif
+
+    #define gettid() ((pid_t)syscall(SYS_gettid))
 #endif
-
-#define gettid() ((pid_t)syscall(SYS_gettid))
 
 namespace rtos{
     /*!
