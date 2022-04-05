@@ -10,7 +10,7 @@ struct callback_type : public callback_type<decltype(&std::remove_reference<Func
 template<typename ReturnType, typename... Arguments>
 struct callback_type<ReturnType (*)(Arguments...)>
 {
-    /**
+        /**
      * @brief Tuple containing the function type and its position
      * 
      * @tparam Index Index position of argument

@@ -25,6 +25,7 @@
 
 // #define TERMINAL
 
+
 /**
  * @brief Signal handler called on interruption. Attempts to gracefully stop all running processes and unlinking any opened shared memory segment
  * 
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
                     #ifdef _QNX_x86_64
                         path += "/gui/qnx/debug/gui";
                     #else
-                        path += "/gui/x64/release/gui";
+                        path += "/gui/x64/debug/gui";
                     #endif
                 #else
                     #ifdef _QNX_x86_64
@@ -164,8 +165,6 @@ int main(int argc, char *argv[])
                     #endif
                 #endif
             #endif
-
-
 
             /**
              * @brief Starts the consumer process and passes all required arguments

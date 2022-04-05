@@ -75,6 +75,5 @@ HEADERS += \
     inputdata.h \
     reader.h \
     ../src/common.hpp \
-    scheduler.h \
-    ../definition.hpp
+    scheduler.h
 

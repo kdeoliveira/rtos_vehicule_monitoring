@@ -143,7 +143,7 @@ private:
     int m_gear;
     int m_dial;
     bool m_bufferStatus;
-    MainThread* m_thread;
+    QMainThread* m_thread;
     Reader* m_reader;
     rtos::SharedMem<buffer_clock> m_shared_mem_timer;
 

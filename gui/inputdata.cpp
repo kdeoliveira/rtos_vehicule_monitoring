@@ -15,9 +15,13 @@ InputData::InputData(QObject *parent) : QObject(parent), m_shared_mem_timer{"m_i
 
 void InputData::init(const char* name){
     m_reader = new Reader(name, this);
-    m_thread = new MainThread(1, m_reader);
+    m_thread = new QMainThread(1, m_reader);
     connect(m_reader, &Reader::bufferRead, this, &InputData::readPipe);
     connect(m_reader, &Reader::currentStatus, this, &InputData::getStatus);
+
+
+
+
 }
 
 

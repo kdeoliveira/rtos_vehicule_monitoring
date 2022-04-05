@@ -19,16 +19,14 @@
 
 #include <../src/common.hpp>
 
-#include "../defintion.hpp"
-
 #include <consumer.h>
 
-//struct _buffer_clock{
-//    int current_val_seconds = 1;
-//    int current_val_nanoseconds = 0;
-//};
+struct _buffer_clock{
+    int current_val_seconds = 1;
+    int current_val_nanoseconds = 0;
+};
 
-//typedef struct _buffer_clock buffer_clock;
+typedef struct _buffer_clock buffer_clock;
 
 class Reader : public QObject, public rtos::Task<char *>
 {
