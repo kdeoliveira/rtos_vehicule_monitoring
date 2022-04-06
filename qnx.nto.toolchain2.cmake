@@ -15,50 +15,6 @@
 # <numeric> · <ostream> · <queue> · <random> · <regex> · <set> · <sstream> · <stack> · <stdexcept> · <streambuf> · <string> · <strstream> · <tuple> · <typeinfo> · <type_traits> · <unordered_map> · <unordered_set> · <utility> · <valarray> · <vector>
 
 
-
-
-
-
-# set(QNX_HOST "/home/kdeoliveira/app/qnx/qnx710/host/linux/x86_64")
-# set(QNX_TARGET "/home/kdeoliveira/app/qnx/qnx7")
-
-# set(CMAKE_SYSTEM_NAME QNX)
-
-# set(arch gcc_ntox86_64)
-# set(ntoarch x86_64)
-# set(QNX_PROCESSOR x86_64)
-
-# set(CMAKE_C_COMPILER qcc)
-# set(CMAKE_C_COMPILER_TARGET ${arch})
-
-# set(CMAKE_CXX_COMPILER q++)
-# set(CMAKE_CXX_COMPILER_TARGET ${arch})
-
-# set(CMAKE_ASM_COMPILER qcc -V${arch})
-# set(CMAKE_ASM_DEFINE_FLAG "-Wa,--defsym,")
-
-# set(CMAKE_RANLIB ${QNX_HOST}/usr/bin/nto${ntoarch}-ranlib
-#     CACHE PATH "QNX ranlib Program" FORCE)
-# set(CMAKE_AR ${QNX_HOST}/usr/bin/nto${ntoarch}-ar
-#     CACHE PATH "QNX qr Program" FORCE)
-
-
-
-
-
-
-    # set(CMAKE_SYSTEM_NAME QNX)
-
-    # set(arch gcc_ntox86_64)
-    
-    # set(CMAKE_C_COMPILER qcc)
-    # set(CMAKE_C_COMPILER_TARGET ${arch})
-    # set(CMAKE_CXX_COMPILER q++)
-    # set(CMAKE_CXX_COMPILER_TARGET ${arch})
-    
-    # set(CMAKE_SYSROOT ${QNX_TARGET})
-
-
 set(CMAKE_SYSTEM_NAME QNX)
 
 

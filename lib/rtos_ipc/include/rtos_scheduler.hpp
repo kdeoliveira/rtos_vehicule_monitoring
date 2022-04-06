@@ -8,10 +8,17 @@
 
 namespace rtos{
     
+    /**
+     * @brief Context interface that implements a scheduler
+     * The scheduler is responsible for "waking-up" threads at any given moment.
+     * Note that threads receiving signals from the Scheduler should have the appropriate signal masked
+     * @tparam T type of task
+     */
     template<typename T>
     class Scheduler{
         public:
             Scheduler() = delete;
+
 
             Scheduler(int signmum, std::shared_ptr<algorithm<T>> _algorithm, const u_int8_t number_of_cycles) : m_signum{signmum}{
                 if(m_algorithm == nullptr) throw "Algorithm object is null";
@@ -19,7 +26,14 @@ namespace rtos{
                 //Equiavelent to a Hyperperiod
                 this->m_cycles(number_of_cycles);
             }
-
+            /**
+             * @brief Construct a new Scheduler object.
+             * Note that in order to avoid long integers, the Scheduler will run over a cyclic period [0 , Hyperperoid]
+             * 
+             * @param signmum Signal used by this scheduler to signal other threads
+             * @param _algorithm Algorithm implementation for this scheduler
+             * @param number_of_cycles Hyperperiod of this scheduler. 
+             */
             Scheduler(int signmum, algorithm<T>* _algorithm, const u_int8_t number_of_cycles) : m_cycles(number_of_cycles), m_signum{signmum}{
                 // if(m_algorithm == nullptr) throw "Algorithm object is null";
                 this->m_algorithm.reset(_algorithm);
@@ -50,7 +64,11 @@ namespace rtos{
             // }
 
 
-            //Dispatch task though _sig signal
+            /**
+             * @brief Function responsible for executing the algorihtm interface at every clock cycle
+             * 
+             * @param _sig Signal received by this scheduler
+             */
             void dispatch(const int _sig){
                 
                 siginfo_t info;
@@ -60,14 +78,7 @@ namespace rtos{
                 
                 while(true){
                     if(this->m_cycles.cycles < 0) return;
-
-
-                    
-                    
                     sigwaitinfo(&set, &info);
-
-
-
                     if(this->m_algorithm != nullptr){
 
                         this->m_algorithm->run(&this->m_cycles, _sig);
@@ -82,7 +93,6 @@ namespace rtos{
 
 
         private:
-            //Implement thread safe queue
             std::shared_ptr<algorithm<T>> m_algorithm;
             timer_cycle m_cycles;
             const int m_signum;

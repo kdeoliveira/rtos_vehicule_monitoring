@@ -60,7 +60,7 @@ DashboardGaugeStyle {
     needleLength: toPixels(0.85)
     needleBaseWidth: toPixels(0.08)
     needleTipWidth: toPixels(0.03)
-    property int gearValue: 0
+    property int tachValue: 0
 
     tickmark: Rectangle {
         implicitWidth: toPixels(0.03)
@@ -87,7 +87,7 @@ DashboardGaugeStyle {
             paintBackground(ctx)
 
             ctx.beginPath()
-            ctx.lineWidth = tachometerStyle.toPixels(0.08)
+            ctx.lineWidth = tachometerStyle.toPixels(0.03)
             ctx.strokeStyle = Qt.rgba(0.5, 0, 0, 1)
             var warningCircumference = maximumValueAngle - minimumValueAngle * 0.1
             var startAngle = maximumValueAngle - 90
@@ -101,8 +101,8 @@ DashboardGaugeStyle {
 
         Text {
             id: rpmText
-            font.pixelSize: tachometerStyle.toPixels(0.3)
-            text: tachometerStyle.gearValue
+            font.pixelSize: tachometerStyle.toPixels(0.2)
+            text: tachometerStyle.tachValue
             color: "white"
             horizontalAlignment: Text.AlignRight
             anchors.horizontalCenter: parent.horizontalCenter

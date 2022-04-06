@@ -12,10 +12,20 @@
 
 namespace rtos
 {
+    /**
+     * @brief Input stream for files. Alternative C implementation of ifstream provided by the std library
+     * File buffering is set _IOLBF.
+     * On output, data is written when a newline character is inserted into the stream or when the buffer is full
+     */
     class InputFile
     {
     public:
         InputFile() = default;
+        /**
+         * @brief Construct a new Input File object and creates a new file descriptor for that stream
+         * 
+         * @param filename absolute path of file
+         */
         InputFile(const char *filename)
         {
             if (
@@ -51,6 +61,11 @@ namespace rtos
         InputFile(const InputFile&) = delete;
         InputFile& operator=(const InputFile&) = delete;
 
+        /**
+         * @brief Opens file in read mode
+         * 
+         * @param filename 
+         */
         void open(const char* filename){
             try{
                 this->file_stream = fopen(
@@ -77,6 +92,11 @@ namespace rtos
             
         }
 
+        /**
+         * @brief Reads file line by line and stores inside a temporary buffer
+         * Note that maximum size of read bytes is defined by BUFFER_SIZE
+         * @return BYTE* char* equivalent value of the buffer.
+         */
         BYTE* read_line()
         {
             if( fgets(this->line_stream, BUFFER_SIZE, this->file_stream) == nullptr ){
@@ -90,40 +110,48 @@ namespace rtos
             return this->line_stream;
         }
 
-        // std::pair<char*, float>* get_values(){
-        //     return this->values.get();
-        // }
-
+        /**
+         * @brief Get current line number
+         * 
+         * @return const int 
+         */
         const int line_index() const{
             return this->_line_index;
         }
 
+        /**
+         * @brief Get the file size object
+         * 
+         * @return const size_t 
+         */
         const size_t get_file_size() const{
             return this->file_size;
         }
 
+        /**
+         * @brief Get the current position of the stream
+         * 
+         * @return long int 
+         */
         long int get_position(){
             return this->position;
         }
 
-        // char * begin(InputFile &x){
-        //     return x.size() ? x.values[0] : nullptr;
-        // }
-        // std::pair<char *, float>* begin(){
-        //     return this->size()  ? *this->values.get() : nullptr;
-        // }
-        // std::pair<char *, float>* end(){
-        //     return this->values.get()[0] + this->size();
-        // }
 
-        // char *end(InputFile &x){
-        //     return x.values[0] + x.size();
-        // }
-
+        /**
+         * @brief Get a file descriptor for the input stream
+         * 
+         * @return int 
+         */
         int get_fd(){
             return this->fd;
         }
 
+        /**
+         * @brief Returns if stream has reached END OF FILE
+         * 
+         * @return bool  
+         */
         bool is_eof(){
             return this->file_size <= this->position;
         }

@@ -113,8 +113,6 @@ public:
         int temp_sec = dial / 1000;
         int temp_nsec = (dial % 1000) * rtos::Timer::MILLION;
 
-
-
         m_shared_mem_timer->current_val_seconds = temp_sec;
         m_shared_mem_timer->current_val_nanoseconds = temp_nsec;
 
@@ -145,7 +143,7 @@ private:
     int m_gear;
     int m_dial;
     bool m_bufferStatus;
-    MainThread* m_thread;
+    QMainThread* m_thread;
     Reader* m_reader;
     rtos::SharedMem<buffer_clock> m_shared_mem_timer;
 

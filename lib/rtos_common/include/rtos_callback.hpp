@@ -3,6 +3,8 @@
 #include <memory>
 #include "rtos_traits.hpp"
 #include <iostream>
+
+
 struct Base{
         virtual bool operator()(const std::type_info &type) const = 0;
         virtual void operator()(void* data) = 0;
@@ -25,6 +27,11 @@ struct Wrapper : public Base {
     }
 };
 
+/**
+ * @brief Wrapper for callback functions. Returns an equivalent template for predicate
+ * Objects passed to this wrapper must be callable and override the operator() function
+ * Only 1 argument is passed to the argument list
+ */
 struct Callback{
     
     std::shared_ptr<Base> fn;

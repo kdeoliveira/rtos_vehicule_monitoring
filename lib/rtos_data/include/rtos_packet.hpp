@@ -8,11 +8,23 @@
 
 
 namespace rtos{
+    /**
+     * @brief Header of a packet defined by an ID and containing the current size of the packet 
+     * 
+     * @tparam T type of ID
+     */
     template<typename T>
     struct packet_header{
         T id {};
         uint16_t size = 0;
 
+        /**
+         * @brief Assigns the ID of this header
+         * 
+         * @tparam X type of ID
+         * @param arg 
+         * @return packet_header<T>& 
+         */
         template<typename X>
         packet_header<T>& operator = (const X& arg){
             static_assert(std::is_standard_layout<X>::value, "Template is too complex");
@@ -23,6 +35,12 @@ namespace rtos{
         }
     };
 
+    /**
+     * @brief Packet structure which encapsulates a header and a payload. Since only simple data will be used, the payload consists of simple type
+     * 
+     * @tparam T Header type
+     * @tparam R Payload type
+     */
     template<typename T, typename R>
     struct packet_data{
         packet_header<T> header;
@@ -43,27 +61,22 @@ namespace rtos{
         }
 
         friend std::ostream& operator << (std::ostream& os, const packet_data<T, R>& data){
-            // if(std::is_union<std::remove_const<decltype(data.payload)>>::value){
-                
-            //     return os;
-            //     // os << "id: " << data.header.id << " | " << "payload: " << static_cast<typeid(arg)>(data.payload);
-            // }else{
-
-            //     os << "id: " << data.header.id << " | " << "payload: " << data.payload;
-            // }
-
                 os << "{ " << data.header.id << ":" <<  data.payload <<" }";
 
             return os;
         }
 
+        /**
+         * @brief Inserts a payload to this packet
+         * 
+         * @tparam X Standard or scalar data type
+         * @param data 
+         * @param in 
+         * @return packet_data<T, R>& 
+         */
         template<typename X>
         friend packet_data<T, R>& operator << (packet_data<T, R>& data,const X& in){
             static_assert(std::is_standard_layout<X>::value, "Template is too complex");
-
-            // size_t sz = data.payload.size();
-            // data.payload.resize(data.payload.size() + sizeof(X));
-
             std::memcpy(
                 &data.payload, &in, sizeof(X)
             );

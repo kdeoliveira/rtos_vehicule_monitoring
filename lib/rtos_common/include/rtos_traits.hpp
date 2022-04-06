@@ -10,10 +10,18 @@ struct callback_type : public callback_type<decltype(&std::remove_reference<Func
 template<typename ReturnType, typename... Arguments>
 struct callback_type<ReturnType (*)(Arguments...)>
 {
+        /**
+     * @brief Tuple containing the function type and its position
+     * 
+     * @tparam Index Index position of argument
+     */
     template<std::size_t Index>
     using arguments = typename std::tuple_element<Index, std::tuple<Arguments...>>::type;
 
-
+    /**
+     * @brief Number of arguments accepted by the function type
+     * 
+     */
     static constexpr std::size_t arity = sizeof...(Arguments);
 };
 
@@ -22,6 +30,12 @@ struct callback_type<ReturnType (ClassType::*)(Arguments...) const> : callback_t
 {
 };
 
+/**
+ * @brief Function traits for predicates. It provides access to the type of each argument and arity 
+ * 
+ * @tparam fn(*)(Arguments...) 
+ * @tparam std::tuple<Index, Argument's type> and arity
+ */
 template <typename ClassType, typename ReturnType, typename... Arguments>
 struct callback_type<ReturnType (ClassType::*)(Arguments...)> : callback_type<ReturnType (*)(Arguments...)>
 {

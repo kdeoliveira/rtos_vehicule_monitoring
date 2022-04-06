@@ -34,12 +34,12 @@ public:
 
     explicit SchedulerThread(const pthread_t thread_id, QObject *parent) : QThread(parent)
     {
-        algo = new ConsumerSchedulerAlgo{1};
+        algo = new SchedulerAlgo{1, "consumer_gui"};
 
         sched_consumer = new rtos::Scheduler<period_task>(SIGUSR1, algo, 5);
 
         period_task c_task;
-        c_task.period = (uint8_t)5;
+        c_task.period = (uint8_t)1;
         c_task.thread_id = thread_id;
 
         algo->push(c_task);
@@ -75,7 +75,7 @@ private:
     bool m_abort;
     QMutex mutex;
     rtos::Scheduler<period_task>* sched_consumer;
-    ConsumerSchedulerAlgo* algo;
+    SchedulerAlgo* algo;
 
 };
 

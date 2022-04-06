@@ -1,7 +1,17 @@
 #pragma once
 #include <map>
 #include <ostream>
+#include <rtos_scheduler.hpp>
+#include <rtos_task.hpp>
+#include <rtos_algorithm.hpp>
+#include <rtos_packet.hpp>
+#include <rtos_buffer.hpp>
+#include <semaphore.h>
 
+/**
+ * @brief Structure used by the scheduler
+ *
+ */
 struct period_task
 {
     period_task(){}
@@ -11,9 +21,12 @@ struct period_task
 
 
 
-
+/**
+ * @brief Enumaration of columns provided by the dataset.csv
+ *
+ */
 enum SensorsHeader : u_int8_t{
-    
+
     Fuel_consumption,
     Accelerator_Pedal_value,
     Throttle_position_signal,
@@ -102,20 +115,6 @@ inline std::ostream& operator << (std::ostream& os, const SensorsHeader& data){
     }
 }
 
-//std::map<std::string, SensorsHeader> map_sensors {
-//    {"Fuel_consumption", SensorsHeader::Fuel_consumption},
-//    {"Accelerator_Pedal_value", SensorsHeader::Accelerator_Pedal_value},
-//    {"Throttle_position_signal", SensorsHeader::Throttle_position_signal},
-//    {"Short_Term_Fuel_Trim_Bank1", SensorsHeader::Short_Term_Fuel_Trim_Bank1},
-//    {"Intake_air_pressure", SensorsHeader::Intake_air_pressure},
-//    {"Filtered_Accelerator_Pedal_value", SensorsHeader::Filtered_Accelerator_Pedal_value},
-//    {"Absolute_throttle_position", SensorsHeader::Absolute_throttle_position},
-//    {"Engine_soacking_time", SensorsHeader::Engine_soacking_time},
-//    {"Inhibition_of_engine_fuel_cut_off", SensorsHeader::Inhibition_of_engine_fuel_cut_off},
-//    {"Engine_in_fuel_cut_off", SensorsHeader::Engine_in_fuel_cut_off},
-//    {"Fuel_Pressure", SensorsHeader::Fuel_Pressure},
-//    {"Long_Term_Fuel_Trim_Bank1", SensorsHeader::Long_Term_Fuel_Trim_Bank1},
-//};
 
 union SensorData{
     float val_n;
@@ -127,9 +126,6 @@ union SensorData{
                     os << data.val_c;
                 else
                     os << data.val_n;
-
-                
-
                 return os;
             }
 };
@@ -139,9 +135,9 @@ typedef float SensorValue;
 template<typename T, typename K>
 struct or_type{
     or_type() : val_t{new T}, val_k{new K}{}
-    
+
     or_type(T&& x) : val_t{std::forward<T>(x)}, val_k{nullptr}{}
-    
+
     or_type(K&& x) : val_k{std::forward<K>(x)}, val_t{nullptr}{}
 
     void operator()(const T& data){
@@ -164,14 +160,92 @@ struct or_type{
     K* val_k;
 };
 
+/**
+ * @brief Thread class implementation that makes use of a runnable task
+ *
+ */
+class MainThread : public rtos::Thread<char*>{
+    public:
+        MainThread(int id, rtos::Task<char *>* task) : m_id{id}, rtos::Thread<char *>{task, false, SIGUSR2}{    //Sensible to SIGUSR2 signal
+        }
 
-// BUFFERING IN/OUT PACKETS PLUS HEADERS
-
-#include <rtos_packet.hpp>
-#include <rtos_buffer.hpp>
-#include <semaphore.h>
+    private:
+        int m_id;
+};
 
 
+/**
+ * @brief Scheduler Algorithm implementation used by both producer and consumer processes
+ *
+ */
+class SchedulerAlgo : public rtos::algorithm<period_task>
+{
+public:
+    //TODO:
+    //Note that this size should be implemented internally as it may result on crash
+    SchedulerAlgo(const int _sz, const char* name) : rtos::algorithm<period_task>{_sz} , name_of_scheduler{name}{}
+
+    template<typename T = period_task>
+    void push(T& task)
+    {
+        this->m_queue[this->m_index++] = task;
+    }
+
+    template<typename T = period_task , typename...K>
+    void push(T& task, K&...k)
+    {
+        this->push(k...);
+        this->push(task);
+    }
+
+    /**
+     * @brief Main scheduler used by the processes
+     * It a simple clock-driven scheduler where each task is dispatched at a given period
+     * Order of priority is not completed and solely based on the position of the task in the m_queue array
+     * At each clock cycle of the timer, the Scheduler will verify if any task is to be disaptched by perofrming a simple search on the m_queue array.
+     * @code (_timer_cycle->cycles + 1) % this->m_queue[i].period == 0
+     * If a task is found, a pthread_kill sends a signal to that thread so it can be start executing
+     * 
+     * @param _timer_cycle Timer cycle
+     * @param _signmum Signal to be send to threads
+     * @return void* return value (optional)
+     */
+    void *run(rtos::timer_cycle* _timer_cycle, const int &_signmum) const override
+    {
+
+        #ifdef DEBUG
+            printf("[%s] Cycle: %u\n",name_of_scheduler,  _timer_cycle->cycles);
+        #endif
+
+            //kill thread by period value provided
+            for(int i{0}; i < this->size() ; i++){
+
+
+                if((_timer_cycle->cycles + 1) % this->m_queue[i].period == 0){
+
+                    #ifdef DEBUG
+                        printf("[debug - %s] period of task %u -> %u \n", name_of_scheduler, _timer_cycle->cycles, this->m_queue[i].period);
+                        printf("[%s] ptask id: %lu\n", name_of_scheduler, this->m_queue[i].thread_id);
+                    #endif
+
+                    pthread_kill(this->m_queue[i].thread_id, _signmum);
+
+                    return nullptr;
+                }
+            }
+        return nullptr;
+    }
+
+    private:
+        const char* name_of_scheduler;
+};
+
+
+
+/**
+ * @brief Buffer used by the producer and consumer
+ *
+ */
  struct buffer_packet{
     char temp_buffer[30];
     int status;
@@ -182,6 +256,3 @@ struct or_type{
 
  typedef struct buffer_packet buffer_packets;
 
-#include <chrono>
-
-using namespace std::chrono;

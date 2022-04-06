@@ -7,6 +7,12 @@ namespace rtos{
 
 
     namespace util{
+        /**
+         * @brief Helper function that masks a signal on the current process
+         * 
+         * @param _signmum SIGNAL to be masked
+         * @return sigset_t 
+         */
         static sigset_t mask_signal(const int _signmum){
             sigset_t set;
             sigemptyset(&set);

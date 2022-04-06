@@ -7,7 +7,20 @@
 #include <vector>
 #include <errno.h>
 
+#ifndef _QNX_x86_64
+    #include <sys/syscall.h>
+
+    #ifndef SYS_gettid
+        #error "SYS_gettid unavailable on this system"
+    #endif
+
+    #define gettid() ((pid_t)syscall(SYS_gettid))
+#endif
+
 namespace rtos{
+    /*!
+     * @brief Counter for timer period
+     */
     struct timer_cycle{
         u_int8_t hyperperiod = 1;
         u_int8_t cycles = 0;
@@ -40,10 +53,22 @@ namespace rtos{
         }
 
     };
+
+    /**
+     * @brief Creates a new POSIX interval timer which upon expiration throws a signal to this process.
+     * This same objects then waits for the above signal to be pending before executing a registered callback function
+     * 
+     */
     class Timer{
         public:
             Timer(const Timer&) = delete;
             Timer() = delete;
+            /**
+             * @brief Construct a new Timer object
+             * 
+             * @param clock_type specifies the clock that the new timer uses to measure time
+             * @param signum 
+             */
             Timer(clockid_t clock_type, int signum){
                 
                 this->callback = nullptr;
@@ -69,7 +94,13 @@ namespace rtos{
             }
 
 
-
+            /**
+             * @brief Sets the timer to the given value and starts the timer
+             * 
+             * @param period_seconds Seconds
+             * @param period_nanoseconds Nano seconds
+             * @return int Returns 0 if successful; otherwise returns -1
+             */
             int start(int period_seconds, int period_nanoseconds){
                 m_timerspec.it_value.tv_sec = period_seconds;
                 m_timerspec.it_interval.tv_sec = period_seconds;
@@ -79,6 +110,11 @@ namespace rtos{
                 return timer_settime(this->m_timer, 0, &m_timerspec, nullptr);
             }
 
+            /**
+             * @brief Callback function called when signal SIGNUM becomes pending for this process
+             * 
+             * @param _args Argument passsed to the callback function
+             */
             void notify(void* _args){
                 siginfo_t info;
                 // sigset_t set = util::mask_signal(this->m_sigevent->sigev_signo);
@@ -87,28 +123,21 @@ namespace rtos{
                 
                 
                 while(true){
-                    // sigval val;
-                    // val.sival_ptr = _args;
-
-
                     sigwaitinfo(&set, &info);
-
-
-                    // if( sigqueue(_pid, this->m_sigevent->sigev_signo, val) < 0 ){
-                    //     perror("sigqueue");
-                    //     throw "Error when sending SIGNAL";
-                    // }
-
                     
                     if(this->callback != nullptr){
                         (*this->callback)(_args);
                         
                     }
-                    
-
                 }
             }
 
+            /**
+             * @brief Register a callback function that will be invoked on every clock signal
+             * 
+             * @tparam T Generic type of callback function
+             * @param _callback Predicate or callback functoin
+             */
             template<typename T>
             void onNotify(T _callback){
                 
