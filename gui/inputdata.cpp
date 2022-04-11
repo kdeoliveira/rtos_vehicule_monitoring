@@ -8,6 +8,7 @@ InputData::InputData(QObject *parent) : QObject(parent), m_shared_mem_timer{"m_i
 
     m_shared_mem_timer->current_val_seconds = 1;
     m_shared_mem_timer->current_val_nanoseconds = 0;
+
 }
 
 
@@ -18,10 +19,6 @@ void InputData::init(const char* name){
     m_thread = new QMainThread(1, m_reader);
     connect(m_reader, &Reader::bufferRead, this, &InputData::readPipe);
     connect(m_reader, &Reader::currentStatus, this, &InputData::getStatus);
-
-
-
-
 }
 
 

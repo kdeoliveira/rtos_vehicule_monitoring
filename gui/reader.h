@@ -37,7 +37,6 @@ public:
     explicit Reader(const char* shared_name, QObject *parent) : QObject(parent), m_input_buffer{shared_name}
     {
         m_input_buffer->semaphore_access = sem_open("/sem_access", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
-
         this->m_abort = false;
 
     }
@@ -60,6 +59,12 @@ public:
 signals:
     void bufferRead(const float&, const float&, const int&, const float&, const int&);
     void currentStatus(const bool&);
+
+public slots:
+//    void setBufferPeriods(int index, int value){
+//        if(this->m_input_buffer->periods[index] == value) return;
+//        this->m_input_buffer->periods[index] = value;
+//    }
 
 protected:
     void run(){

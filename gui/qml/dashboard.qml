@@ -79,6 +79,10 @@ Window {
     InputData {
         id: inputSource
     }
+    Periods {
+        id: inputPeriods
+    }
+
     Image {
         id: image
         anchors.fill: parent
@@ -121,6 +125,64 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 style: DashboardGaugeStyle {}
+            }
+
+            SpinBox {
+                id: spinBox_3
+                x: 458
+                y: 364
+                width: 70
+                height: 30
+                value: inputPeriods.periodSpeed
+                onValueChanged: inputPeriods.periodSpeed = spinBox_3.value
+                visible: switchPeriods.checked
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 20
+                font.pointSize: 9
+                anchors.bottom: parent.bottom
+                stepSize: 1
+                topPadding: 5
+                down.indicator: Rectangle {
+                    x: spinBox_3.mirrored ? parent.width - width : 0
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        color: "#21be2b"
+                        text: "-"
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        fontSizeMode: Text.Fit
+                        font.pixelSize: spinBox_3.font.pixelSize * 2
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_3.height
+                }
+                rightPadding: 20
+                bottomPadding: 5
+                to: 10
+                editable: true
+                up.indicator: Rectangle {
+                    x: spinBox_3.mirrored ? 0 : parent.width - width
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        width: 30
+                        color: "#21be2b"
+                        text: "+"
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        fontSizeMode: Text.Fit
+                        font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_3.height
+                }
+                anchors.bottomMargin: 75
+                from: 1
             }
 
             CircularGauge {
@@ -185,6 +247,67 @@ Window {
                         }
                     }
                 }
+
+                SpinBox {
+                    id: spinBox_1
+                    x: 97
+                    y: -145
+                    width: 70
+                    height: 30
+                    value: inputPeriods.periodEngineCoolant
+                    onValueChanged: inputPeriods.periodEngineCoolant = spinBox_1.value
+                    visible: switchPeriods.checked
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 0
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    stepSize: 1
+                    to: 10
+                    from: 1
+                    bottomPadding: 5
+                    topPadding: 5
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.pointSize: 9
+                    editable: true
+                    up.indicator: Rectangle {
+                        x: spinBox_1.mirrored ? 0 : parent.width - width
+                        height: parent.height
+                        implicitWidth: 20
+                        implicitHeight: spinBox_1.height
+                        color: "#222222"
+                        border.color: "#222222"
+
+                        Text {
+                            width: 30
+                            text: "+"
+                            font.pixelSize: 12
+                            color: "#21be2b"
+                            anchors.fill: parent
+                            fontSizeMode: Text.Fit
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+
+                    down.indicator: Rectangle {
+                        x: spinBox_1.mirrored ? parent.width - width : 0
+                        height: parent.height
+                        implicitWidth: 20
+                        implicitHeight: spinBox_1.height
+                        color: "#222222"
+                        border.color: "#222222"
+
+                        Text {
+                            text: "-"
+                            font.pixelSize: spinBox_1.font.pixelSize * 2
+                            color: "#21be2b"
+                            anchors.fill: parent
+                            fontSizeMode: Text.Fit
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
             }
 
             CurrentGear {
@@ -220,6 +343,124 @@ Window {
                 anchors.rightMargin: 133
                 state: setState(inputSource.gear)
             }
+
+            SpinBox {
+                id: spinBox_4
+                x: 467
+                y: 295
+                width: 70
+                height: 30
+                visible: switchPeriods.checked
+                anchors.horizontalCenterOffset: 408
+                value: inputPeriods.periodGear
+                onValueChanged: inputPeriods.periodGear = spinBox_4.value
+                leftPadding: 20
+                font.pointSize: 9
+                anchors.bottom: parent.bottom
+                stepSize: 1
+                topPadding: 5
+                down.indicator: Rectangle {
+                    x: spinBox_4.mirrored ? parent.width - width : 0
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        color: "#21be2b"
+                        text: "-"
+                        anchors.fill: parent
+                        fontSizeMode: Text.Fit
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: spinBox_4.font.pixelSize * 2
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_4.height
+                }
+                rightPadding: 20
+                bottomPadding: 5
+                to: 10
+                editable: true
+                up.indicator: Rectangle {
+                    x: spinBox_4.mirrored ? 0 : parent.width - width
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        width: 30
+                        color: "#21be2b"
+                        text: "+"
+                        anchors.fill: parent
+                        fontSizeMode: Text.Fit
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_4.height
+                }
+                anchors.bottomMargin: 75
+                from: 1
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            SpinBox {
+                id: spinBox_5
+                x: 467
+                y: 185
+                width: 70
+                height: 30
+                value: inputPeriods.periodRpm
+                onValueChanged: inputPeriods.periodRpm = spinBox_5.value
+                visible: switchPeriods.checked
+                leftPadding: 20
+                font.pointSize: 9
+                anchors.bottom: parent.bottom
+                stepSize: 1
+                topPadding: 5
+                down.indicator: Rectangle {
+                    x: spinBox_5.mirrored ? parent.width - width : 0
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        color: "#21be2b"
+                        text: "-"
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        fontSizeMode: Text.Fit
+                        font.pixelSize: spinBox_5.font.pixelSize * 2
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_5.height
+                }
+                rightPadding: 20
+                bottomPadding: 5
+                anchors.horizontalCenterOffset: 441
+                to: 10
+                editable: true
+                up.indicator: Rectangle {
+                    x: spinBox_5.mirrored ? 0 : parent.width - width
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        width: 30
+                        color: "#21be2b"
+                        text: "+"
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        fontSizeMode: Text.Fit
+                        font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_5.height
+                }
+                anchors.bottomMargin: 185
+                from: 1
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
 
         Item {
@@ -231,6 +472,65 @@ Window {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 25
+
+            SpinBox {
+                id: spinBox_2
+                x: 440
+                y: 170
+                width: 70
+                height: 30
+                visible: switchPeriods.checked
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: -23
+                anchors.horizontalCenter: parent.horizontalCenter
+                value: inputPeriods.periodFuel
+                onValueChanged: inputPeriods.periodFuel = spinBox_2.value
+
+                leftPadding: 20
+                font.pointSize: 9
+                stepSize: 1
+                topPadding: 5
+                down.indicator: Rectangle {
+                    x: spinBox_2.mirrored ? parent.width - width : 0
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        color: "#21be2b"
+                        text: "-"
+                        anchors.fill: parent
+                        fontSizeMode: Text.Fit
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: spinBox_2.font.pixelSize * 2
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_2.height
+                }
+                rightPadding: 20
+                bottomPadding: 5
+                to: 10
+                editable: true
+                up.indicator: Rectangle {
+                    x: spinBox_2.mirrored ? 0 : parent.width - width
+                    height: parent.height
+                    color: "#222222"
+                    border.color: "#222222"
+                    implicitWidth: 20
+                    Text {
+                        width: 30
+                        color: "#21be2b"
+                        text: "+"
+                        anchors.fill: parent
+                        fontSizeMode: Text.Fit
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    implicitHeight: spinBox_2.height
+                }
+                from: 1
+            }
 
             Gauge {
                 id: gauge
@@ -301,6 +601,48 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 active: inputSource.bufferStatus
             }
+
+            Rectangle {
+                id: horizontalBar
+                width: 1
+                height: 20
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Label {
+                id: element_checkbox
+                color: "#ffffff"
+                text: qsTr("Change task periods:")
+                anchors.verticalCenter: parent.verticalCenter
+                horizontalAlignment: Text.AlignLeft
+                font.pixelSize: 10
+            }
+
+            Switch {
+                id: switchPeriods
+                width: 50
+                height: 20
+                anchors.verticalCenter: parent.verticalCenter
+
+                indicator: Rectangle {
+                    implicitWidth: 40
+                    implicitHeight: 20
+                    x: switchPeriods.leftPadding
+                    y: parent.height / 2 - height / 2
+                    radius: 10
+                    color: switchPeriods.checked ? "#17a81a" : "#ffffff"
+                    border.color: switchPeriods.checked ? "#17a81a" : "#cccccc"
+
+                    Rectangle {
+                        x: switchPeriods.checked ? parent.width - width : 0
+                        width: 20
+                        height: 20
+                        radius: 10
+                        color: switchPeriods.down ? "#17a81a" : "#ffffff"
+                        border.color: switchPeriods.checked ? "#17a81a" : "#999999"
+                    }
+                }
+            }
         }
 
         Item {
@@ -363,9 +705,10 @@ Window {
 
 /*##^##
 Designer {
-    D{i:3;anchors_height:100;anchors_width:100;anchors_x:0;anchors_y:0}D{i:7;anchors_y:122}
-D{i:17;anchors_x:12}D{i:18;anchors_x:186}D{i:19;anchors_x:186}D{i:16;anchors_x:12}
-D{i:20;anchors_x:186}
+    D{i:3;anchors_height:100;anchors_width:100;anchors_x:0;anchors_y:0}D{i:8;anchors_y:170}
+D{i:7;anchors_y:122}D{i:26;anchors_y:170}D{i:31;anchors_y:170}D{i:36;anchors_x:12}
+D{i:42;anchors_x:12}D{i:43;anchors_x:186}D{i:44;anchors_x:186}D{i:45;anchors_x:186}
+D{i:37;anchors_y:170}
 }
 ##^##*/
 

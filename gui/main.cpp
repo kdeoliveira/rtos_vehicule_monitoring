@@ -7,10 +7,16 @@
 
 #include <scheduler.h>
 
+
+#include <periods.h>
+
 int main(int argc, char *argv[])
 {
 
     SchedulerThread* sched;
+
+
+
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -18,6 +24,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<InputData>("qnx.rtos", 1, 0, "InputData");
+    qmlRegisterType<periods>("qnx.rtos", 1, 0, "Periods");
 
     QQmlApplicationEngine engine;
     QFontDatabase::addApplicationFont("qrc:/fonts/DejaVuSans.ttf");
@@ -41,6 +48,8 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
 
     }, Qt::QueuedConnection);
+
+
 
 
     engine.load(url);
