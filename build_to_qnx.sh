@@ -86,7 +86,9 @@ mkdir -p ${APP}/gui/qnx/release && cd ${APP}/gui/qnx/release
 OUTPUT_BUILD=$(pwd)
 
 
-$QMAKE /home/dev/dev/rtos_vehicule_monitoring/gui/gui.pro -spec qnx-x86-64-qcc CONFIG+=qtquickcompiler CONFIG-=separate_debug_info
+$QMAKE /home/dev/dev/rtos_vehicule_monitoring/gui/gui.pro -spec qnx-x86-64-qcc 
+# if debug mode
+#CONFIG+=qtquickcompiler CONFIG-=separate_debug_info
 
 $QNX_HOST/usr/bin/make -f $OUTPUT_BUILD/Makefile qmake_all
 

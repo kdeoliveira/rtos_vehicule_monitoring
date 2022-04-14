@@ -45,12 +45,14 @@ class Producer : public rtos::Task<char *>{
     Producer(const char* shared_name, int arg_fd[2]) : pipe {arg_fd, rtos::PipeMode::READ, rtos::PipeFlag::REDIRECT}, m_input_buffer{shared_name}{
     m_input_buffer->semaphore_modification = sem_open("/sem_modification", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
 
+
+
     using _type = typename std::remove_pointer<decltype(m_input_buffer->buffer)>::type;
 
     if(m_input_buffer->status != 1){
         m_input_buffer->status = 1;
     }
-
+    
     /**
      * @brief Uses the read end of file descriptor genereted by the InputFile to read each line at the times
      * This function is responsible for properly parsing each column and storing inside a buffer
@@ -58,7 +60,7 @@ class Producer : public rtos::Task<char *>{
     pipe.onRead( [&](char* arg){
         static int m_arg_row;
         int m_arg_col = 0;
-
+        
         rtos::packet_data<SensorsHeader, SensorValue> m_packet{};
 
         char* res;
@@ -79,12 +81,20 @@ class Producer : public rtos::Task<char *>{
 
         }
         
-        if(m_arg_row % 5 == 0)
-            while( (res = strtok(nullptr, ",")) != nullptr){
-                ++m_arg_col;
+        
+        
+        while( (res = strtok(nullptr, ",")) != nullptr){
 
-                if(m_arg_row > 0){
+            ++m_arg_col;
+
+            if(m_arg_row > 0){
+                
+                if(m_input_buffer->periods[m_arg_col] && m_arg_row % m_input_buffer->periods[m_arg_col] == 0){
+
                     m_packet = SensorsHeader(m_arg_col);
+                    #ifdef DEBUG
+                        std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
+                    #endif
                     
                     if(m_arg_col == 52){
                         m_packet << static_cast<float>(*res);
@@ -93,14 +103,12 @@ class Producer : public rtos::Task<char *>{
                     }
                     
                     this->m_input_buffer->buffer[m_arg_col] = m_packet;
-
                 }
             }
+        }
 
         
-        #ifdef DEBUG
-            std::cout << ">> Row pushed from producer: " << m_arg_row << std::endl;
-        #endif
+
         m_arg_row++;
 
     if( sem_post(m_input_buffer->semaphore_modification) == -1 ){

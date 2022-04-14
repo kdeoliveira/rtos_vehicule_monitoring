@@ -252,6 +252,8 @@ public:
     rtos::packet_data<SensorsHeader, SensorValue> buffer[54];
     sem_t* semaphore_access;
     sem_t* semaphore_modification;
+    //For both consumer and producer accces, this should be modified to regular array and initialized in consumer
+    int periods[54];
  };
 
  typedef struct buffer_packet buffer_packets;

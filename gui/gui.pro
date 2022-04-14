@@ -10,6 +10,7 @@ CONFIG += qmltypes
 SOURCES += \
     inputdata.cpp \
     main.cpp \
+    periods.cpp \
     reader.cpp
 
 RESOURCES += qml.qrc
@@ -73,6 +74,7 @@ INCLUDEPATH += $$PWD/../lib/rtos_data/include
 HEADERS += \
     consumer.h \
     inputdata.h \
+    periods.h \
     reader.h \
     ../src/common.hpp \
     scheduler.h

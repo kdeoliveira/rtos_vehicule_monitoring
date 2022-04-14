@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <consumer.h>
+#include <QVariantList>
 
 #include "reader.h"
 
@@ -17,6 +18,9 @@ class InputData : public QObject
     Q_PROPERTY(int gear READ gear WRITE setGear NOTIFY gearChanged)
     Q_PROPERTY(bool bufferStatus READ bufferStatus WRITE setBufferStatus NOTIFY bufferStatusChanged)
     Q_PROPERTY(int dial READ dial WRITE setDial NOTIFY dialChanged)
+
+
+
 
 public:
     explicit InputData(QObject *parent = nullptr);
@@ -46,6 +50,7 @@ public:
     int dial(){
         return this->m_dial;
     }
+
 
 
     void init(const char*);
@@ -122,6 +127,8 @@ public:
         m_dial = dial;
         emit dialChanged(dial);
     }
+
+
 signals:
     void speedChanged(float);
     void rpmChanged(float);
@@ -132,9 +139,6 @@ signals:
     void dialChanged(int);
 
 
-
-
-
 private:
     float m_speed;
     float m_rpm;
@@ -143,9 +147,11 @@ private:
     int m_gear;
     int m_dial;
     bool m_bufferStatus;
+
     QMainThread* m_thread;
     Reader* m_reader;
     rtos::SharedMem<buffer_clock> m_shared_mem_timer;
+//    rtos::SharedMem<buffer_packets> m_shared_input_buffer;
 
 
 public:
