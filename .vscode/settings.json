@@ -53,6 +53,8 @@
         "ctime": "cpp",
         "ratio": "cpp",
         "mutex": "cpp",
-        "thread": "cpp"
-    }
+        "thread": "cpp",
+        "variant": "cpp"
+    },
+    "sonarlint.pathToCompileCommands": "/home/dev/dev/rtos_vehicule_monitoring/build/gui/x64/debug/.qtc_clangd/compile_commands.json"
 }
